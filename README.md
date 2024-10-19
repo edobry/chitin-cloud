@@ -1,4 +1,4 @@
-# chitin-cloud
+# chitin - cloud
 
 This repository is a [chitin fiber](https://github.com/edobry/chitin#structure) containing a collection of helpers for cloud engineering.
 
