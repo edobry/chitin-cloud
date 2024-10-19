@@ -37,5 +37,5 @@ function kafkaResetTopics() {
 }
 
 function kafkacli() {
-    $CA_DT_DIR/shell/helpers/kafka/kafkacli.py $*
+    $CA_DT_DIR/shell/chains/kafka/kafkacli.py $*
 }

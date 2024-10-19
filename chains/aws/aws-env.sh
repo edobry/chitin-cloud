@@ -99,7 +99,7 @@ function awsInitProgrammaticAuth() {
 function awsInitAutomaticAuth() {
     local profile=$(chiReadChainConfig aws '.defaultProfile//empty')
     if [[ -z $profile ]]; then
-        dtLog "automaticAuth enabled, but defaultProfile not set!"
+        chiLog "automaticAuth enabled, but defaultProfile not set!"
         return 1
     fi
     # echo "authorizing $profile..."

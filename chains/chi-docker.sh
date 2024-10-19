@@ -19,14 +19,14 @@ function chiDockerShellLatest() {
 function chiDockerShell() {
     dockerCheckAndFail || return 1
 
-    local dtVersion="${1:-$(dtGetVersion)}"
+    local chiVersion="${1:-$(chiGetVersion)}"
     local imageName="$(whoami)/chitin"
     local fullImageName=$(dockerMakeImageName $imageName)
 
-    local imageId="$fullImageName:$dtVersion"
+    local imageId="$fullImageName:$chiVersion"
     if ! (
-        dockerCheckImageExistsLocal $fullImageName $dtVersion ||\
-        dockerCheckImageExistsRemote $imageName $dtVersion
+        dockerCheckImageExistsLocal $fullImageName $chiVersion ||\
+        dockerCheckImageExistsRemote $imageName $chiVersion
     ); then
         if [[ ! -z $1 ]]; then
             echo "No image found for '$imageId'!"
@@ -35,7 +35,7 @@ function chiDockerShell() {
             echo "Building local version..."
             hr
             imageId=$(chiDockerBuild)
-            docker tag $imageId $fullImageName:$dtVersion
+            docker tag $imageId $fullImageName:$chiVersion
             hr
         fi
     fi
@@ -57,14 +57,14 @@ function chiDockerShellRun() {
          return 1
      fi
 
-    local dtConfigFile=$(tempFile)
+    local chiConfigFile=$(tempFile)
     jsonReadFile $(chiGetLocation)/shell/docker-config.json5 -n \
         'inputs * {
             chains: {
                 "aws-auth": { enabled: true },
                 "k8s-env": { enabled: true }
             }
-        }' > $dtConfigFile
+        }' > $chiConfigFile
 
     # hack to read the helm env output
     eval $(helm env | grep HELM_REPOSITORY_CONFIG)
@@ -76,7 +76,7 @@ function chiDockerShellRun() {
         -e AWS_SECRET_ACCESS_KEY="$(jsonRead "$awsCreds" '.Credentials.SecretAccessKey')" \
         -e AWS_SESSION_TOKEN="$(jsonRead "$awsCreds" '.Credentials.SessionToken')" \
         -e AWS_DEFAULT_REGION=$(awsGetRegion) \
-        -v $dtConfigFile:/home/chitin/.config/chitin/config.json5:rw \
+        -v $chiConfigFile:/home/chitin/.config/chitin/config.json5:rw \
         -v $HELM_REPOSITORY_CONFIG:/home/chitin/.config/helm/repositories.yaml:ro \
         -v $(pwd):/home/chitin/working-dir:rw \
         $imageId bash

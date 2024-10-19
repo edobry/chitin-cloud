@@ -1,7 +1,7 @@
 function k8sInitConfig() {
     if [[ ! -f $CA_DT_K8S_KUBECONFIG ]]; then
-        dtLog "Initializing k8s-env configuration..."
-        dtModuleLoad $(chiGetLocation)/shell/helpers/aws
+        chiLog "Initializing k8s-env configuration..."
+        chiModuleLoad $(chiGetLocation)/shell/chains/aws
         awsAuthModuleInit && awsEksRegisterClusters
     fi
 }

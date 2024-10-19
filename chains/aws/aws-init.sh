@@ -1,0 +1,1 @@
+chiModuleShouldLoad aws

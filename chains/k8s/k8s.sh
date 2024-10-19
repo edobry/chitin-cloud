@@ -42,51 +42,6 @@ function k8sReDeploy() {
     k8sUpDeploy $1
 }
 
-# launches a debug pod in the cluster preloaded with common networking tools,
-# drops you into its shell when created. randomizes the name, and cleans up after
-# args: all args passed to k8sDebugPod chart
-function k8sDebugPod() {
-    local baseName="debug-pod"
-    local debugPodName="$baseName-$(randomString 8)"
-
-    echo -e "\nGenerating '$baseName' manifest..."
-    local chartDir=$CA_DT_DIR/charts/debug-pod
-    pushd $chartDir > /dev/null
-
-    npm run compile
-    node main.js --config config.json --name "$debugPodName" $*
-
-    echo -e "\nDeploying to K8s..."
-    local manifests=$(ls dist/*)
-    cat $manifests | kubectl apply -f -
-    popd > /dev/null
-
-    echo -e "\nAwaiting pod creation..."
-    # TODO: fail on timeout
-    kubectl wait --for=condition=Ready pod/$debugPodName
-    if [[ ! $? ]]; then
-        echo -e "\Pod did not start up in time! Exiting..."
-        return 1
-    fi
-
-    echo -e "\n---------------- START POD OUTPUT ----------------"
-    kubectl exec $debugPodName --container "$baseName" -i --tty -- /bin/bash
-    echo -e "\n---------------- END POD OUTPUT ----------------"
-
-    echo -e "\nCleaning up pod..."
-    kubectl delete pods $debugPodName --grace-period=10 --wait=true
-}
-
-# fetches and pretty-prints the image pull secret
-function k8sGetRegcred() {
-    kubectl get secret regcred -o=json | jq -r '.data. ".dockerconfigjson"' | base64Decode | jq '.'
-}
-
-# fetches and prints the image pull secret's auth string, for debugging
-function k8sGetRegcredAuthString() {
-    k8sGetRegcred | jq -r ".auths .\"$1\" .auth" | base64Decode
-}
-
 dashboardNamespace="kubernetes-dashboard"
 
 # fetches the admin user token, can be used for authorizing with the dashboard
@@ -109,28 +64,6 @@ function k8sDashboard() {
     openUrl $url
 
     kubectl proxy
-}
-
-# opens psql connected to an rds db
-# $1: service name of rds instance (ex. postgres-erc20)
-# $2: db name (ex. jsondb), defaults to "postgres"
-# $*: passed through to psql. $2 must be set
-# ex: rds postgres-erc20 jsondb -c "select max(bid) from erc20"
-function rds() {
-    requireArg "a DB service name" $1 || return 1
-    local service=$1
-    shift
-
-    local url=$(k8sGetServiceEndpoint $service)
-    [ -z $url ] && return;
-    local json=$(kubectl get secret $service-user -o json | jq .data)
-    local user=$(jq .username -r <<< $json| base64 --decode)
-    local password=$(jq .password -r <<< $json | base64 --decode)
-
-    local db=${1:-'postgres'}
-    [ $1 ] && shift;
-
-    psql postgres://$user:$password@$url/$db "$*"
 }
 
 function k8sGetPodConfig() {
