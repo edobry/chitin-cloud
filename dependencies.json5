@@ -1,0 +1,26 @@
+{
+    // you probably dont want to touch any of this
+    "tools": {
+        "aws": {
+            "version": "2.0.57",
+            "command": "aws --version | awk '{ print $1 }' | sed 's/aws-cli\\///'"
+        },
+        "kubectl": {
+            "version": "1.22",
+            "command": "kubectl version --client=true  -o=json | jq -r '.clientVersion.gitVersion' | sed 's/v//'"
+        },
+        "pcregrep": {
+            "version": "8.45",
+            "command": "pcregrep --version | cut -d ' ' -f 3"
+        }
+    },
+    "chainDeps": {
+        "aws": {
+            "dependencies": ["aws", "pcregrep"]
+        },
+        "k8s": {
+            "dependencies": ["aws", "kubectl"]
+        }
+    },
+    "fiberDeps" ["dev"]
+}
