@@ -1,1 +1,1 @@
-chiModuleShouldLoad aws
+chiChainShouldLoad cloud aws

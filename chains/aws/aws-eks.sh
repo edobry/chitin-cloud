@@ -138,7 +138,7 @@ function awsEksGetKnownClusters() {
     local inlineClusters=$(chiReadChainnConfigField 'k8s-env' 'eksClusters' | jq -c '. | to_entries[]')
 
     local eksFilePath
-    eksFilePath=$(json5Convert $(chiGetLocation)/shell/eksClusters.json5)
+    eksFilePath=$(json5Convert $(chiGetLocation)/eksClusters.json5)
     [[ $? -eq 0 ]] || return 1
     local defaultClusters=$(jsonReadFile "$eksFilePath" | jq -c '. | to_entries[]')
 

@@ -389,7 +389,7 @@ function awsIamAssumeRoleShell() {
     AWS_ACCESS_KEY_ID="$(jsonRead "$awsCreds" '.Credentials.AccessKeyId')" \
         AWS_SECRET_ACCESS_KEY="$(jsonRead "$awsCreds" '.Credentials.SecretAccessKey')" \
         AWS_SESSION_TOKEN="$(jsonRead "$awsCreds" '.Credentials.SessionToken')" \
-        bash --init-file <(echo "source $CA_DT_DIR/shell/init.sh;\
+        bash --init-file <(echo "source $CA_DT_DIR/init.sh;\
             echo 'subshell initialized';")
 
     echo "Exiting assumed role '$1' session"
@@ -411,7 +411,7 @@ function awsIamAssumeProgrammaticRoleShell() {
     echo "Starting subshell as programmatic user '$(jsonRead "$awsCreds" '.user')'..."
     AWS_ACCESS_KEY_ID="$(jsonRead "$awsCreds" '.id')" \
     AWS_SECRET_ACCESS_KEY="$(jsonRead "$awsCreds" '.key')" \
-        bash --init-file <(echo "source $CA_DT_DIR/shell/init.sh;\
+        bash --init-file <(echo "source $CA_DT_DIR/init.sh;\
         awsIamAssumeRoleShell $(jsonRead "$awsCreds" '.role');")
     
     echo "Cleaning up session..."

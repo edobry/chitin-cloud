@@ -1,10 +1,10 @@
 local chainConfig
-chainConfig=$(chiModuleShouldLoad k8s return-config k8s-env)
+chainConfig=$(chiChainShouldLoad cloud k8s return-config k8s-env)
 if [[ $? -ne 0 ]]; then
     return 1
 fi
 
-CHI_K8S_KUBECONFIG="$CA_DT_DIR/shell/eksconfig.yaml"
+CHI_K8S_KUBECONFIG="$CA_DT_DIR/eksconfig.yaml"
 # set user-readable-only permissions
 chmod go-r $CHI_K8S_KUBECONFIG 2>/dev/null
 

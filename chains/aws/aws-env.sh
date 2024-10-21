@@ -1,7 +1,7 @@
 export CHI_CA_AWS_ENV_INIT=false
 export CHI_CA_AWS_AUTH_INIT=false
 
-export CHI_CA_AWS_CONFIG_ROOT=$CHI_CA_DIR/shell/terraform
+export CHI_CA_AWS_CONFIG_ROOT=$CHI_CA_DIR/terraform
 export CHI_CA_AWS_CONFIG_PATH=util/aws/config
 export CHI_CA_AWS_CONFIG=$CHI_CA_AWS_CONFIG_ROOT/$CHI_CA_AWS_CONFIG_PATH
 

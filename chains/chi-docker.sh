@@ -58,7 +58,7 @@ function chiDockerShellRun() {
      fi
 
     local chiConfigFile=$(tempFile)
-    jsonReadFile $(chiGetLocation)/shell/docker-config.json5 -n \
+    jsonReadFile $(chiGetLocation)/docker-config.json5 -n \
         'inputs * {
             chains: {
                 "aws-auth": { enabled: true },
