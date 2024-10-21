@@ -22,5 +22,5 @@
             "dependencies": ["aws", "kubectl"]
         }
     },
-    "fiberDeps" ["dev"]
+    "fiberDeps": ["dev"]
 }
