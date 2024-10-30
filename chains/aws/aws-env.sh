@@ -19,18 +19,18 @@ function awsAuthInit() {
 
     local googleUsername=$(chiReadChainConfig aws '.googleUsername // empty')
     if [[ -z $googleUsername ]]; then
-        echo "The DT config field aws-auth.googleUsername must be set to your Chainalysis email address."
+        echo "The DT config field aws-auth.googleUsername must be set to your email address."
         return 1
     fi
-    export CA_GOOGLE_USERNAME=$googleUsername
+    export CHI_GOOGLE_USERNAME=$googleUsername
 
     local departmentRole=$(chiReadChainConfig aws '.departmentRole // empty')
-    export CA_DEPT_ROLE=$departmentRole
+    export CHI_AWS_DEPT_ROLE=$departmentRole
 
     export AWS_SDK_LOAD_CONFIG=1
-    export AWS_SSO_ORG_ROLE_ARN=arn:aws:iam::${AWS_ORG_IDENTITY_ACCOUNT_ID}:role/${CA_DEPT_ROLE}
+    export AWS_SSO_ORG_ROLE_ARN=arn:aws:iam::${AWS_ORG_IDENTITY_ACCOUNT_ID}:role/${CHI_AWS_DEPT_ROLE}
 
-    export TF_VAR_aws_sessionname=${CA_GOOGLE_USERNAME}
+    export TF_VAR_aws_sessionname=${CHI_GOOGLE_USERNAME}
 
     awsAuthLoadAccounts
     export AWS_CONFIG_FILE=$CHI_CA_AWS_CONFIG
@@ -47,8 +47,8 @@ function awsAuthLoadAccounts() {
 
 # set known accounts & profiles
 function awsAuthDetectProfiles() {
-    export CA_KNOWN_AWS_PROFILES=$(cat $CHI_CA_AWS_CONFIG | pcregrep -o1 '\[profile ([a-zA-Z0-9\-]*)' | replaceNewlines)
-    export CA_KNOWN_AWS_ACCOUNTS=$(echo $CA_KNOWN_AWS_PROFILES | splitOnSpaces | sed -E 's/-(admin|poweruser|readonly|secadmin|secaudit|sysadmin)*$//' | uniq | replaceNewlines)
+    export CHI_KNOWN_AWS_PROFILES=$(cat $CHI_CA_AWS_CONFIG | pcregrep -o1 '\[profile ([a-zA-Z0-9\-]*)' | replaceNewlines)
+    export CA_KNOWN_AWS_ACCOUNTS=$(echo $CHI_KNOWN_AWS_PROFILES | splitOnSpaces | sed -E 's/-(admin|poweruser|readonly|secadmin|secaudit|sysadmin)*$//' | uniq | replaceNewlines)
 }
 
 function awsAuthUpdateAccounts() {
@@ -110,8 +110,8 @@ function awsInitAutomaticAuth() {
 function awsRole() {
     local id
     if id=$(awsId); then
-        export CA_AWS_CURRENT_ROLE=$(echo $id | jq '.Arn' | awk -F '/' '{ print $2 }')
-        echo $CA_AWS_CURRENT_ROLE
+        export CHI_AWS_CURRENT_ROLE=$(echo $id | jq '.Arn' | awk -F '/' '{ print $2 }')
+        echo $CHI_AWS_CURRENT_ROLE
     else
         return 1
     fi
@@ -125,9 +125,9 @@ function deAuth() {
 }
 
 function awsOrg() {
-    requireArgOptions "an organization name" "$1" "$CA_KNOWN_AWS_ORGS" || return 1
+    requireArgOptions "an organization name" "$1" "$CHI_KNOWN_AWS_ORGS" || return 1
 
-    export CA_DEPT_ROLE="$1"
+    export CHI_AWS_DEPT_ROLE="$1"
     echo "Set AWS organization to: $1"
 }
 
@@ -135,14 +135,14 @@ function awsOrg() {
 # and then assumes the provided role
 function awsAuth() {
     awsAuthInit || return 1
-    requireArgOptions "a known AWS profile" "$1" "$CA_KNOWN_AWS_PROFILES" || return 1
+    requireArgOptions "a known AWS profile" "$1" "$CHI_KNOWN_AWS_PROFILES" || return 1
 
     requireArg "a profile name" $1 || return 1
 
     local mfaCode="$2"
     local mfaArg=$(isSet "$mfaCode" && echo "--mfa-code $mfaCode" || echo '')
     export AWS_PROFILE=$1
-    export AWS_SSO_ORG_ROLE_ARN=arn:aws:iam::${AWS_ORG_IDENTITY_ACCOUNT_ID}:role/${CA_DEPT_ROLE}
+    export AWS_SSO_ORG_ROLE_ARN=arn:aws:iam::${AWS_ORG_IDENTITY_ACCOUNT_ID}:role/${CHI_AWS_DEPT_ROLE}
 
     if ! checkAuth; then
         echo "Authenticating..."
