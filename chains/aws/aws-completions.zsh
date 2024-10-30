@@ -1,4 +1,4 @@
-checkCommand compdef || return 0
+chiRegisterCompletion "$0" || return 0
 
 function _aws_complete_availability_zones() {
     _arguments "1: :($(checkAuth && awsListAZsInCurrentRegion))"

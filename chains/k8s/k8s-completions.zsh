@@ -1,4 +1,4 @@
-checkCommand compdef || return 0
+chiRegisterCompletion "$0" || return 0
 
 function _k8s_complete_pods() {
     _arguments "1: :($(k8sListPods))"
