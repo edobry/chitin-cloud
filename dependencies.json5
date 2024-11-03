@@ -12,6 +12,10 @@
         "pcregrep": {
             "version": "8.45",
             "command": "pcregrep --version | cut -d ' ' -f 3"
+        },
+        "gcloud": {
+            "version": "2.0.57",
+            "command": "aws --version | awk '{ print $1 }' | sed 's/aws-cli\\///'"
         }
     },
     "chainDeps": {
@@ -20,7 +24,10 @@
         },
         "k8s": {
             "dependencies": ["aws", "kubectl"]
-        }
+        },
+        "gcloud": {
+            "dependencies": ["gcloud"]
+        },
     },
     "fiberDeps": ["dev"]
 }
