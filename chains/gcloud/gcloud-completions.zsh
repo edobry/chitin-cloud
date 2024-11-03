@@ -14,14 +14,10 @@ function _gcloud_complete_gke_clusters() {
 
 function _gcloud_complete_gke_cluster_init() {
     _arguments \
-        "1: :->projects" \
-        "2: :->regions" \
-        "3: :->clusters"
+        "1: :->regions" \
+        "2: :->clusters"
 
     case $state in
-        projects)
-            compadd $(gcloudListUniqueProjects)
-            ;;
         regions)
             compadd $(gcloudComputeListRegions)
             ;;
@@ -32,4 +28,5 @@ function _gcloud_complete_gke_cluster_init() {
 }
 
 compdef _gcloud_complete_projects gcloudSetProject
+compdef _gcloud_complete_gke_clusters gcloudGkeGetCluster gcloudGkeGetClusterRegion
 compdef _gcloud_complete_gke_cluster_init gcloudGkeClusterInit
