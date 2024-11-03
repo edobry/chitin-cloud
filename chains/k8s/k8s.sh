@@ -276,6 +276,12 @@ function k8sNamespaceExists() {
     kubectl get namespaces "$1" --output=json > /dev/null 2>&1
 }
 
+function k8sCreateNamespace() {
+    requireArg "a namespace name" "$1" || return 1
+
+    kubectl create namespace "$1"
+}
+
 function k8sAwaitPodCondition() {
     requireArg "a pod name" "$1" || return 1
     requireArg "a condition" "$2" || return 1
