@@ -27,7 +27,7 @@
         },
         "gcloud": {
             "dependencies": ["gcloud"]
-        },
+        }
     },
     "fiberDeps": ["dev"]
 }
