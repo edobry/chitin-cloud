@@ -241,7 +241,7 @@ function k8sRunAsServiceAccount() {
 
     local svcAccountName="$1"
     local command="$2"
-    shift && shift
+    shift; shift
 
     echo "Creating temporary service account context for '$svcAccountName'..."
     local ctxName=$(k8sCreateTmpSvcAccContext $svcAccountName)
@@ -432,7 +432,7 @@ function k8sActionResourceWithAppLabel() {
     local resourceType="$2"
     local label="$3"
     local labelValue="$4"
-    shift && shift && shift && shift
+    shift; shift; shift; shift
 
     kubectl $action $resourceType --selector=app.kubernetes.io/$label=$labelValue $@
 }
