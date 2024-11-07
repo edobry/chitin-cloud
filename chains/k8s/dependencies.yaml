@@ -1,0 +1,58 @@
+tools:
+# distros
+  minikube:
+    brew: {}
+# cli
+  kubernetes-cli:
+    version: "1.22"
+    versionCommand: "kubectl version --client=true  -o=json | jq -r '.clientVersion.gitVersion' | sed 's/v//'"
+    checkCommand: "kubectl"
+    brew: {}
+  kube-ps1:
+    checkBrew: true
+    brew: {}
+  kubectx:
+    brew: {}
+  kubie:
+    brew: {}
+  derailed/k9s/k9s:
+    checkCommand: k9s
+    brew:
+      tap: derailed/k9s
+# kustomize
+  kustomize:
+    brew: {}
+# helm
+  helm:
+    brew: {}
+  norwoodj/tap/helm-docs:
+    optional: true
+    brew:
+      tap: norwoodj/tap
+# tilt
+  tilt-dev/tap/tilt:
+    optional: true
+    brew:
+      tap: tilt-dev/tap
+# k8s pods debugging
+  # unmaintained, upgrade to https://github.com/JamesTGrant/kubectl-debug
+  # aylei/tap/kubectl-debug:
+  #   optional: true
+  #   brew:
+  #     tap: aylei/tap
+# logging
+  # https://github.com/boz/kail
+  boz/repo/kail:
+    optional: true
+    brew:
+      tap: boz/repo
+  # https://github.com/stern/stern
+  stern:
+    brew: {}
+# gui
+  lens:
+    brew:
+      cask: true
+toolDeps:
+  - aws
+  - kubernetes-cli

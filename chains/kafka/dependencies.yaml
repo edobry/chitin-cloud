@@ -1,0 +1,15 @@
+tools:
+  kafka:
+    brew: {}
+  librdkafka:
+    brew: {}
+  # https://github.com/edenhill/kcat
+  kcat:
+    brew: {}
+  kafka-tool:
+    brew:
+      cask: true
+  conduktor:
+    brew:
+      cask: true
+      tap: conduktor/brew

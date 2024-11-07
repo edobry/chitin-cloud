@@ -1,0 +1,11 @@
+tools:
+  sqlite:
+    brew: {}
+  postgresql:
+    brew:
+      version: "14"
+  flyway:
+    brew: {}
+  pgadmin4:
+    brew:
+      cask: true

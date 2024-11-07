@@ -1,0 +1,19 @@
+tools:
+  tfenv:
+    brew: {}
+  terragrunt:
+    brew:
+      link: false
+  tflint:
+    brew: {}
+  terraformer:
+    brew: {}
+  minamijoyo/tfmigrate/tfmigrate:
+    optional: true
+    brew:
+      tap: minamijoyo/tfmigrate
+  warrensbox/tap/tgswitch:
+    optional: true
+    brew:
+      tap: warrensbox/tap
+  

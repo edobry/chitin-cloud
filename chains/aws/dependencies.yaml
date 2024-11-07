@@ -1,0 +1,13 @@
+tools:
+# aws
+  gimme-aws-creds:
+    brew: {}
+  aws/tap/ec2-instance-selector:
+    brew:
+      tap: aws/tap
+  pcregrep:
+    version: "8.45"
+    command: pcregrep --version | cut -d ' ' -f 3
+toolDeps:
+  - aws
+  - pcregrep
