@@ -143,7 +143,7 @@ function awsIamDeleteProgrammaticCreds() {
     requireJsonArg "of programmatic credentials" "$1" || return 1
 
     local creds="$1"
-    validateJsonFields "$creds" user role || return 1
+    jsonValidateFields "$creds" user role || return 1
 
     awsIamDeleteProgrammaticUser quiet $(jsonRead "$creds" '.user')
     awsIamDeleteRole yes quiet $(jsonRead "$creds" '.role')
