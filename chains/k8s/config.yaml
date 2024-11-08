@@ -52,6 +52,7 @@ tools:
     brew: {}
 # gui
   lens:
+    optional: true
     brew:
       cask: true
 toolDeps:
