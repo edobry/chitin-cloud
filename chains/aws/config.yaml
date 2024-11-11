@@ -8,7 +8,7 @@ tools:
       tap: aws/tap
   pcregrep:
     version: "8.45"
-    command: pcregrep --version | cut -d ' ' -f 3
+    versionCommand: pcregrep --version | cut -d ' ' -f 3
 toolDeps:
   - aws
   - pcregrep
