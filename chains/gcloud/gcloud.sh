@@ -1,3 +1,3 @@
-function oplGcloudFirstTimeSetup()  {
-    gcloud components install gke-gcloud-auth-plugin
+function gcloudConfigPath() {
+    gcloud info --format="get(config.paths.active_config_path)"
 }

@@ -31,6 +31,10 @@ function gcloudCheckAuth() {
 }
 
 function gcloudAuth() {
+    gcloud auth login
+}
+
+function gcloudAuthAdc() {
     gcloud auth login --update-adc
 }
 
