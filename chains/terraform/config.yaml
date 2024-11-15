@@ -1,14 +1,14 @@
 enabled: false
 tools:
   tfenv:
-    brew: {}
+    brew: true
   terragrunt:
     brew:
       link: false
   tflint:
-    brew: {}
+    brew: true
   terraformer:
-    brew: {}
+    brew: true
   minamijoyo/tfmigrate/tfmigrate:
     optional: true
     brew:

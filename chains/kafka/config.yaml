@@ -1,12 +1,12 @@
 enabled: false
 tools:
   kafka:
-    brew: {}
+    brew: true
   librdkafka:
-    brew: {}
+    brew: true
   # https://github.com/edenhill/kcat
   kcat:
-    brew: {}
+    brew: true
   kafka-tool:
     brew:
       cask: true

@@ -2,7 +2,7 @@ enabled: false
 tools:
 # aws
   gimme-aws-creds:
-    brew: {}
+    brew: true
   aws/tap/ec2-instance-selector:
     brew:
       tap: aws/tap

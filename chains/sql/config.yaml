@@ -1,12 +1,12 @@
 enabled: false
 tools:
   sqlite:
-    brew: {}
+    brew: true
   postgresql:
     brew:
       version: 14
   flyway:
-    brew: {}
+    brew: true
   pgadmin4:
     brew:
       cask: true

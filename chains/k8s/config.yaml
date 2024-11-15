@@ -2,30 +2,32 @@ enabled: false
 tools:
 # distros
   minikube:
-    brew: {}
+    optional: true
+    brew: true
 # cli
   kubernetes-cli:
     version: 1.22
     versionCommand: "kubectl version --client=true  -o=json | jq -r '.clientVersion.gitVersion' | sed 's/v//'"
     checkCommand: "kubectl"
-    brew: {}
+    brew: true
   kube-ps1:
     checkBrew: true
-    brew: {}
+    brew: true
   kubectx:
-    brew: {}
+    optional: true
+    brew: true
   kubie:
-    brew: {}
+    brew: true
   derailed/k9s/k9s:
     checkCommand: k9s
     brew:
       tap: derailed/k9s
 # kustomize
   kustomize:
-    brew: {}
+    brew: true
 # helm
   helm:
-    brew: {}
+    brew: true
   norwoodj/tap/helm-docs:
     optional: true
     brew:
@@ -49,7 +51,8 @@ tools:
       tap: boz/repo
   # https://github.com/stern/stern
   stern:
-    brew: {}
+    optional: true
+    brew: true
 # gui
   lens:
     optional: true
