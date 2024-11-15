@@ -35,7 +35,3 @@ function kafkaResetTopics() {
     runTF $1 $2 $topicsModule destroy -auto-approve
     runTF $1 $2 $topicsModule apply -auto-approve
 }
-
-function kafkacli() {
-    $CA_DT_DIR/chains/kafka/kafkacli.py $*
-}
