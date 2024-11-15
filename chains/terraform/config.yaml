@@ -1,4 +1,5 @@
-enabled: false
+enabled: true
+installToolDeps: true
 tools:
   tfenv:
     brew: true
@@ -17,4 +18,5 @@ tools:
     optional: true
     brew:
       tap: warrensbox/tap
-  
+toolDeps:
+  - tfenv
