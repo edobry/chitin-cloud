@@ -4,7 +4,7 @@ tools:
     brew: {}
   postgresql:
     brew:
-      version: "14"
+      version: 14
   flyway:
     brew: {}
   pgadmin4:

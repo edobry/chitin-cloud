@@ -5,7 +5,7 @@ tools:
     brew: {}
 # cli
   kubernetes-cli:
-    version: "1.22"
+    version: 1.22
     versionCommand: "kubectl version --client=true  -o=json | jq -r '.clientVersion.gitVersion' | sed 's/v//'"
     checkCommand: "kubectl"
     brew: {}
