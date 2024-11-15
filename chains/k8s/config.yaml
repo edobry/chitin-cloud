@@ -1,4 +1,4 @@
-enabled: enabled
+enabled: true
 tools:
 # distros
   minikube:
@@ -28,6 +28,10 @@ tools:
     brew: true
 # helm
   helm:
+    version: 3.16.3
+    versionCommand: helm version --template='{{.Version}}' | sed 's/v//'
+    brew: true
+  oras:
     brew: true
   helm-docs:
     optional: true
@@ -64,7 +68,8 @@ tools:
       cask: true
 toolDeps:
   - kubernetes-cli
-  - helm
   - kubie
   - k9s
+  - helm
+  - oras
 installToolDeps: true

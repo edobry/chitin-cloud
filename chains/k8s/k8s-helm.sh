@@ -1,6 +1,16 @@
 # prints out the local Helm repository configuration
 function helmRepoReadConfig() {
-    eval $(helm env | grep HELM_REPOSITORY_CONFIG); cat $HELM_REPOSITORY_CONFIG | prettyYaml
+    eval $(helm env | grep HELM_REPOSITORY_CONFIG); cat "$HELM_REPOSITORY_CONFIG" | prettyYaml
+}
+
+# gets the local Helm registry configuration
+function helmRegistryGetConfig() {
+    eval $(helm env | grep HELM_REGISTRY_CONFIG); cat "$HELM_REGISTRY_CONFIG" | jq -c
+}
+
+# prints out the local Helm registry configuration
+function helmRegistryReadConfig() {
+    helmRegistryGetConfig | prettyYaml
 }
 
 # checks whether a given Helm repository is configured
@@ -12,26 +22,63 @@ function helmRepoCheckConfigured() {
         '.[].name | select(.==$repo)' >/dev/null
 }
 
+# checks whether a given Helm registry is configured
+# args: registry name
+function helmRegistryCheckConfigured() {
+    requireArg "a registry" "$1" || return 1
+
+    helmRegistryGetConfig | jq -re --arg repo "$1/" \
+        '.auths | has($repo)' >/dev/null
+}
+
 # configures the Artifactory Helm repository
 # args: artifactory username, artifactory password
-function helmRepoConfigureArtifactory() {
-	local username=$([[ ! -z "$1" ]] && echo "$1" || artifactoryGetUsername)
-	local password=$([[ ! -z "$2" ]] && echo "$2" || artifactoryGetPassword)
+function helmRepoConfigure() {
+    requireArg "a repository name" "$1" || return 1
+    requireArg "a repository url" "$2" || return 1
+    requireArg "a username" "$3" || return 1
+    requireArg "a password" "$4" || return 1
+
+    local name="$1"
+    local url="$2"
+    local username="$3"
+    local password="$4"
 
     # load helm envvars into session
     eval $(helm env)
 
-    mkdir -p "$HELM_HOME/.cache/helm/repository/"
-    if helmRepoCheckConfigured $CA_ARTIFACTORY_DOMAIN;
+    mkdir -p "$HELM_REPOSITORY_CACHE"
+    if helmRepoCheckConfigured "$name";
     then
-        echo "Artifactory repo already exists, removing first..."
-        helm repo remove $CA_ARTIFACTORY_DOMAIN
+        echo "repo '$name' already exists, removing first..."
+        helm repo remove "$name"
     fi
 
-    echo "Configuring Artifactory repo..."
-    helm repo add $CA_ARTIFACTORY_DOMAIN $CA_ARTIFACTORY_HELM_REPO \
-        --username ${username} --password ${password}
+    echo "Configuring repo..."
+    helm repo add "$name" "$url" \
+        --username "$username" --password "$password"
     helm repo update
+}
+
+function helmRegistryConfigure() {
+    requireArg "a registry url" "$1" || return 1
+    requireArg "a username" "$2" || return 1
+    requireArg "a password" "$3" || return 1
+
+    local url="$1"
+
+    # load helm envvars into session
+    eval $(helm env)
+
+    mkdir -p "$(dirname "$HELM_REPOSITORY_CONFIG")"
+    if helmRegistryCheckConfigured "$url";
+    then
+        echo "registry '$name' already exists, removing first..."
+        helm registry logout "$url"
+    fi
+
+    echo "Configuring registry..."
+    echo "$3" | helm registry login "$url" -u "$2" --password-stdin
 }
 
 # prints a JSON object containing the locally-configured credentials for the given repository
@@ -43,32 +90,91 @@ function helmRepoGetCredentials() {
         '.repositories[] | select(.name == $repo) | { username, password }'
 }
 
-# prints a JSON object containing the locally-configured Artifactory credentials
-function helmRepoGetArtifactoryCredentials() {
-    helmRepoGetCredentials $CA_ARTIFACTORY_DOMAIN
+# gets the latest version of a given Helm chart
+# args: chart path
+function helmChartGetLatestRemoteVersion() {
+    local isOci
+    if [[ "$1" == "oci" ]]; then
+        isOci=true
+        shift
+    else
+        isOci=false
+    fi
+
+    requireArg "a chart identifier" "$1" || return 1
+
+    if $isOci; then
+        helmChartGetLatestRegistryVersion $*
+    else
+        helmChartGetLatestRepoVersion $*
+    fi
 }
 
 # gets the latest version of a given Helm chart
 # args: chart path
-function helmChartGetLatestRemoteVersion() {
+function helmChartGetLatestRepoVersion() {
     requireArg "a chart path" $1 || return 1
 
     helm repo update > /dev/null
-    local helmResponse=$(helm search repo $1 --output json)
+    local helmResponse=$(helm search repo "$1" --output json)
     [[ $helmResponse = "[]" ]] && return 1
 
     jsonRead "$helmResponse" '.[] | .version'
 }
 
+function helmChartGetLatestRegistryVersion() {
+    requireArg "a registry domain" "$1" || return 1
+    requireArg "a namespace" "$2" || return 1
+    requireArg "a chart name" "$3" || return 1
+
+    dockerCurlListTags "$1" "$2" "$3" | \
+        jq -r '[
+            .manifest[] | { timeUploadedMs, tag } 
+                | select(.tag | length > 0)
+                | select(.tag[] | contains("-") | not)
+        ] | sort_by(.timeUploadedMs) | reverse[0] | .tag[0]'
+}
+
 # checks whether the given version of the given Helm chart exists
 # args: chart path, chart version
 function helmChartCheckRemoteVersion() {
-    requireArg "a chart path" $1 || return 1
-    requireArg "a version" $2 || return 1
+    local isOci
+    if [[ "$1" == "oci" ]]; then
+        isOci=true
+        shift
+    else
+        isOci=false
+    fi
+
+    requireArg "a chart identifier" "$1" || return 1
+
+    if $isOci; then
+        helmChartCheckRegistryVersion $*
+    else
+        helmChartCheckRepoVersion $*
+    fi
+}
+
+# checks whether the given version of the given Helm chart exists
+# args: chart path, chart version
+function helmChartCheckRepoVersion() {
+    requireArg "a chart path" "$1" || return 1
+    requireArg "a version" "$2" || return 1
 
     helm repo update > /dev/null
-    local helmResponse=$(helm search repo $1 --version $2 --output json)
+    local helmResponse=$(helm search repo "$1" --version "$2" --output json)
     [[ $helmResponse != "[]" ]]
+}
+
+# checks whether the given version of the given Helm chart exists
+# args: chart path, chart version
+function helmChartCheckRegistryVersion() {
+    requireArg "a registry domain" "$1" || return 1
+    requireArg "a namespace" "$2" || return 1
+    requireArg "a chart path" "$3" || return 1
+    requireArg "a version" "$4" || return 1
+
+    ociRepoGetArtifactManifestConfig "$1" "$2" "$3" "$4" &>/dev/null
 }
 
 # gets the version of a local Helm chart
