@@ -42,14 +42,14 @@ function k8sReDeploy() {
     k8sUpDeploy $1
 }
 
-dashboardNamespace="kubernetes-dashboard"
+CHI_CLOUD_K8S_DASHBOARD_NAMESPACE="kubernetes-dashboard"
 
 # fetches the admin user token, can be used for authorizing with the dashboard
 function k8sGetAdminToken() {
     local user="admin-user"
 
-    local adminSecret="$(kubectl -n $dashboardNamespace get secret | grep $user | awk '{print $1}')"
-    kubectl -n $dashboardNamespace describe secret $adminSecret | grep 'token:' | awk '{print $2}' | toClip
+    local adminSecret="$(kubectl -n "$CHI_CLOUD_K8S_DASHBOARD_NAMESPACE" get secret | grep "$user" | awk '{print $1}')"
+    kubectl -n "$CHI_CLOUD_K8S_DASHBOARD_NAMESPACE" describe secret "$adminSecret" | grep 'token:' | awk '{print $2}' | toClip
 }
 
 function k8sDashboard() {
@@ -58,10 +58,10 @@ function k8sDashboard() {
     k8sGetAdminToken
 
     echo -e "\nOpening URL (might need a refresh):"
-    local url="http://localhost:8001/api/v1/namespaces/$dashboardNamespace/services/https:dashboard-kubernetes-dashboard:https/proxy/"
+    local url="http://localhost:8001/api/v1/namespaces/$CHI_CLOUD_K8S_DASHBOARD_NAMESPACE/services/https:dashboard-kubernetes-dashboard:https/proxy/"
     echo -e "\n$url\n"
 
-    openUrl $url
+    openUrl "$url"
 
     kubectl proxy
 }
@@ -131,17 +131,17 @@ function k8sFindVolumeIdByPvc() {
     local namespace="$1"
     local persistentVolumeClaimName="$2"
 
-    volumeName=$(kubectl -n $namespace get pvc --field-selector metadata.name=$persistentVolumeClaimName -o jsonpath='{.items[0].spec.volumeName}')
+    local volumeName=$(kubectl -n "$namespace" get pvc --field-selector metadata.name="$persistentVolumeClaimName" -o jsonpath='{.items[0].spec.volumeName}')
 
     if [[ -z "$volumeName" ]]; then
-        echo "ERROR: trying to get volumeName for persistentVolumeClaimName $persistentVolumeClaimName in namespace $namespace"
+        echo "ERROR: trying to get volumeName for persistentVolumeClaimName "$persistentVolumeClaimName" in namespace $namespace"
         return
     fi
 
-    volumeId=$(kubectl -n $namespace get pv --field-selector metadata.name=$volumeName -o jsonpath='{.items[0].spec.csi.volumeHandle}')
+    local volumeId=$(kubectl -n "$namespace" get pv --field-selector metadata.name="$volumeName" -o jsonpath='{.items[0].spec.csi.volumeHandle}')
 
     if [[ -z "$volumeId" ]]; then
-        echo "ERROR: trying to get volumeId/volumeHandle for persistentVolume $volumeName in namespace $namespace"
+        echo "ERROR: trying to get volumeId/volumeHandle for persistentVolume '$volumeName' in namespace '$namespace'"
         return
     fi
 
@@ -159,14 +159,12 @@ function k8sCreateEbsVolumeTags() {
     local deployment="$3"
     local product="$4"
 
-    volumeId=$(k8sFindVolumeIdByPvc $1 $2)
+    local volumeId="$(k8sFindVolumeIdByPvc "$1" "$2")"
 
-    if [[ -z "$volumeId" ]]; then
-        return
-    fi
+    [[ -z "$volumeId" ]] && return 1
 
     echo "tagging volumeId: $volumeId deployment: $deployment product=$product"
-    aws ec2 create-tags --resources $volumeId --tags Key=kube_deployment,Value=$deployment Key=Name,Value=$deployment Key=product,Value=$product
+    aws ec2 create-tags --resources "$volumeId" --tags Key=kube_deployment,Value=$deployment Key=Name,Value=$deployment Key=product,Value=$product
 }
 
 function k8sSnapshotAndScale() {
@@ -180,26 +178,28 @@ function k8sSnapshotAndScale() {
     local deployment="$3"
     local templateFile="$4"
 
-    volumeId=$(k8sFindVolumeIdByPvc $1 $2)
+    local volumeId=$(k8sFindVolumeIdByPvc "$1" "$2")
 
     if [[ -z "$volumeId" ]]; then
         return
     fi
 
-    replicas=$(kubectl get deployment $deployment -o jsonpath='{.spec.replicas}')
+    local replicas="$(kubectl get deployment "$deployment" -o jsonpath='{.spec.replicas}')"
 
     if [[ -z "$replicas" ]]; then
-        echo "ERROR: unable to get replicas for deployment: $deployment in namespace: $namespace"
+        echo "ERROR: unable to get replicas for deployment: '$deployment' in namespace: '$namespace'"
         return
     fi
 
-    echo "scale deployment $deployment to zero"
-    kubectl -n $namespace scale deployment $deployment --replicas=0
+    echo "scale deployment '$deployment' to zero"
+    kubectl -n "$namespace" scale deployment "$deployment" --replicas=0
+    
     echo "take snapshot of $volumeId"
-    cat $templateFile | sed -e "s/timestamp/$(date '+%Y%m%d%H%M')/g" > ~/snapshot.yaml
-    kubectl -n $namespace apply -f ~/snapshot.yaml
+    cat "$templateFile" | sed -e "s/timestamp/$(date '+%Y%m%d%H%M')/g" > ~/snapshot.yaml
+    kubectl -n "$namespace" apply -f ~/snapshot.yaml
+
     echo "scale deployment $deployment to $replicas replicas"
-    kubectl -n $namespace scale deployment $deployment --replicas=$replicas
+    kubectl -n "$namespace" scale deployment "$deployment" --replicas=$replicas
 }
 
 # gets the token for a given ServiceAccount
@@ -218,16 +218,16 @@ function k8sCreateTmpSvcAccContext() {
     requireArg "a service account name" "$1" || return 1
     local svcAccountName="$1"
 
-    local token=$(k8sGetServiceAccountToken "$svcAccountName")
-    kubectl config set-credentials $svcAccountName --token $token > /dev/null
+    local token="$(k8sGetServiceAccountToken "$svcAccountName")"
+    kubectl config set-credentials "$svcAccountName" --token "$token" > /dev/null
 
-    local currentCtx=$(k8sGetCurrentContext)
+    local currentCtx="$(k8sGetCurrentContext)"
 
     local ctxName="tmp-ctx-svc-acc-$svcAccountName"
-    kubectl config set-context $ctxName \
-        --cluster $(jsonRead "$currentCtx" '.cluster') \
-        --namespace $(jsonRead "$currentCtx" '.namespace') \
-        --user $svcAccountName > /dev/null
+    kubectl config set-context "$ctxName" \
+        --cluster "$(jsonReadPath "$currentCtx" cluster)" \
+        --namespace "$(jsonReadPath "$currentCtx" namespace)" \
+        --user "$svcAccountName" > /dev/null
 
     echo "$ctxName"
 }
@@ -244,9 +244,9 @@ function k8sRunAsServiceAccount() {
     shift; shift
 
     echo "Creating temporary service account context for '$svcAccountName'..."
-    local ctxName=$(k8sCreateTmpSvcAccContext $svcAccountName)
-    local currentCtx=$(kubectx -c)
-    kubectx $ctxName
+    local ctxName="$(k8sCreateTmpSvcAccContext $svcAccountName)"
+    local currentCtx="$(kubectx -c)"
+    kubectx "$ctxName"
 
     echo "Running command in context..."
     echo -e "\n------ START COMMAND OUTPUT ------"
@@ -254,8 +254,8 @@ function k8sRunAsServiceAccount() {
     echo -e "------ END COMMAND OUTPUT ------\n"
 
     echo "Cleaning up temporary context..."
-    kubectx $currentCtx
-    k8sDeleteContext $ctxName
+    kubectx "$currentCtx"
+    k8sDeleteContext "$ctxName"
 }
 
 # impersonates a given ServiceAccount and runs a kubectl command using its token
@@ -267,7 +267,7 @@ function kubectlAsServiceAccount() {
     local svcAccountName="$1"
     shift
 
-    k8sRunAsServiceAccount $svcAccountName kubectl $*
+    k8sRunAsServiceAccount "$svcAccountName" kubectl $*
 }
 
 function k8sNamespaceExists() {
@@ -286,8 +286,7 @@ function k8sAwaitPodCondition() {
     requireArg "a pod name" "$1" || return 1
     requireArg "a condition" "$2" || return 1
 
-    kubectl wait --for=condition="$2" pod/"$1"
-
+    kubectl wait --for=condition="$2" "pod/$1"
 }
 
 # gets the pod selector used for a given Deployment
@@ -326,7 +325,7 @@ function k8sGetDeploymentPods() {
     local deploymentName="$1"
     shift
 
-    kubectl get pods --selector=$(k8sGetDeploymentSelector "$deploymentName") $*
+    kubectl get pods --selector="$(k8sGetDeploymentSelector "$deploymentName")" $*
 }
 
 # checks whether a given Deployment has running pods under management
@@ -344,7 +343,7 @@ function k8sWaitForDeploymentScaleDown() {
 
     local deploymentName="$1"
 
-    while k8sDeploymentHasPods $deploymentName
+    while k8sDeploymentHasPods "$deploymentName"
     do
         echo "Waiting for scale down..."
     done
@@ -434,5 +433,5 @@ function k8sActionResourceWithAppLabel() {
     local labelValue="$4"
     shift; shift; shift; shift
 
-    kubectl $action $resourceType --selector=app.kubernetes.io/$label=$labelValue $@
+    kubectl "$action" "$resourceType" --selector="app.kubernetes.io/$label=$labelValue" $@
 }

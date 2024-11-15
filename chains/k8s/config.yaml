@@ -1,4 +1,4 @@
-enabled: false
+enabled: enabled
 tools:
 # distros
   minikube:
@@ -11,6 +11,7 @@ tools:
     checkCommand: "kubectl"
     brew: true
   kube-ps1:
+    optional: true
     checkBrew: true
     brew: true
   kubectx:
@@ -18,25 +19,27 @@ tools:
     brew: true
   kubie:
     brew: true
-  derailed/k9s/k9s:
-    checkCommand: k9s
+  k9s:
     brew:
       tap: derailed/k9s
+      name: derailed/k9s/k9s
 # kustomize
   kustomize:
     brew: true
 # helm
   helm:
     brew: true
-  norwoodj/tap/helm-docs:
+  helm-docs:
     optional: true
     brew:
       tap: norwoodj/tap
+      name: norwoodj/tap/helm-docs
 # tilt
-  tilt-dev/tap/tilt:
+  tilt:
     optional: true
     brew:
       tap: tilt-dev/tap
+      name: tilt-dev/tap/tilt
 # k8s pods debugging
   # unmaintained, upgrade to https://github.com/JamesTGrant/kubectl-debug
   # aylei/tap/kubectl-debug:
@@ -45,10 +48,11 @@ tools:
   #     tap: aylei/tap
 # logging
   # https://github.com/boz/kail
-  boz/repo/kail:
+  kail:
     optional: true
     brew:
       tap: boz/repo
+      name: boz/repo/kail
   # https://github.com/stern/stern
   stern:
     optional: true
@@ -59,5 +63,8 @@ tools:
     brew:
       cask: true
 toolDeps:
-  - aws
   - kubernetes-cli
+  - helm
+  - kubie
+  - k9s
+installToolDeps: true

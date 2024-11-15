@@ -1,18 +1,37 @@
-local chainConfig
-chainConfig=$(chiChainShouldLoad cloud k8s return-config k8s-env)
-if [[ $? -ne 0 ]]; then
-    return 1
-fi
+function k8sLoadBundledKubeconfig() {
+    local chainConfig="$(chiConfigChainRead cloud:k8s)"
+    local bundledConfig="$(jsonReadPath "$chainConfig" bundledConfig)"
+    [[ -z "$bundledConfig" ]] && return 0
 
-CHI_K8S_KUBECONFIG="$CA_DT_DIR/eksconfig.yaml"
-# set user-readable-only permissions
-chmod go-r $CHI_K8S_KUBECONFIG 2>/dev/null
+    local bundledConfigPath="$(expandPath $(jsonReadPath "$bundledConfig" path))"
+    if [[ -z "$bundledConfigPath" ]]; then
+        chiLog "bundled kubeconfig path not set!" cloud:k8s
+        return 1
+    fi
 
-local originalConfig="$KUBECONFIG:$HOME/.kube/config"
+    if [[ ! -f "$bundledConfigPath" ]]; then
+        chiLog "configured bundled kubeconfig not found at '$bundledConfigPath'!" cloud:k8s
+        return 1
+    fi
 
-# TODO: add init var for idempotency
-local conditionalPrepend=$(jsonCheckBool 'override' "$chainConfig" && echo '' || echo "$originalConfig:")
-export KUBECONFIG="${conditionalPrepend}${CHI_K8S_KUBECONFIG}"
+    export CHI_CLOUD_K8S_KUBECONFIG="$bundledConfigPath"
+    
+    # set user-readable-only permissions
+    chmod go-r "$CHI_CLOUD_K8S_KUBECONFIG" 2>/dev/null
+
+    local originalConfig="$KUBECONFIG:$HOME/.kube/config"
+
+    # TODO: add init var for idempotency
+    local conditionalPrepend="$originalConfig:"
+    jsonCheckBoolPath "$bundledConfig" override && conditionalPrepend=''
+    
+    export KUBECONFIG="${conditionalPrepend}${CHI_CLOUD_K8S_KUBECONFIG}"
+}
+
+# k8sLoadBundledKubeconfig
 
 # add krew to PATH
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+KREW_PATH="${KREW_ROOT:-$HOME/.krew}"
+if [[ -d "$KREW_PATH" ]]; then
+    chiToolsAddDirToPath "$KREW_PATH/bin"
+fi

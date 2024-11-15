@@ -48,7 +48,6 @@ function helmRepoGetArtifactoryCredentials() {
     helmRepoGetCredentials $CA_ARTIFACTORY_DOMAIN
 }
 
-
 # gets the latest version of a given Helm chart
 # args: chart path
 function helmChartGetLatestRemoteVersion() {

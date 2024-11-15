@@ -1,11 +1,10 @@
 function k8sInitConfig() {
-    if [[ ! -f $CA_DT_K8S_KUBECONFIG ]]; then
+    if [[ ! -f "$CHI_K8S_KUBECONFIG" ]]; then
         chiLog "Initializing k8s-env configuration..."
-        chiModuleLoad $(chiGetLocation)/chains/aws
-        awsAuthModuleInit && awsEksRegisterClusters
+        # gcloudAuth && gcloudGkeRegisterClusters
     fi
 }
-k8sInitConfig
+# k8sInitConfig
 
 # gets the current k8s context config
 function k8sGetCurrentContext() {
@@ -23,12 +22,9 @@ function k8sDeleteContext() {
 }
 
 function k9sEnv() {
-    requireArg "an AWS account name" "$1" || return 1
-    requireArg "a K8s context name" "$2" || return 1
-    requireArg "a K8s namespace name" "$3" || return 1
+    requireArg "a K8s context name" "$1" || return 1
+    requireArg "a K8s namespace name" "$2" || return 1
 
-    checkAuth "$1" || awsAuth "$1"
-
-    echo "Launching K9s in context '$2', namespace '$3'"
-    k9s --context "$2" --namespace "$3" -c deployments
+    echo "Launching K9s in context '$1', namespace '$2'"
+    k9s --context "$1" --namespace "$2" -c deployments
 }
