@@ -2,22 +2,9 @@
 
 This repository is a [chitin fiber](https://github.com/edobry/chitin#structure) containing a collection of helpers for cloud engineering.
 
-## Dependencies
-
-Optionally required:
-
-- `aws v2.0.57`
-- `terraform`
-- `docker`
-- `kubectl/kubectx`
-- `helm`
-- `tsc` [link](https://www.npmjs.com/package/typescript)
-
 ## Setup
 
-1. Install the dependencies for the chains(s) you want to use (see docs below)
-2. Clone this repository to your `project dir` (the directory where you usually run `git clone`)
-3. Register this fiber with `chitin` [TBD]
+Clone this repository to your `project dir` (the directory where you usually run `git clone`).
 
 ## Helpers
 
