@@ -64,7 +64,6 @@ function awsEksUpgradeVpcCniPlugin() {
     echo "kubectl describe daemonset aws-node --namespace kube-system | grep Image | cut -d "/" -f 2"
 }
 
-
 function awsEksUpgrade() {
     requireArg "the new K8s version" "$1" || return 1
     requireArg "the new kube-proxy version" "$2" || return 1
@@ -106,7 +105,7 @@ function awsEksRegisterCluster() {
 
     local dryRun=$([[ "$3" == 'dryrun' ]] && echo '--dry-run' || echo '')
 
-    aws eks update-kubeconfig --name "$1" --alias "$2" --kubeconfig $CA_DT_K8S_KUBECONFIG $dryRun
+    aws eks update-kubeconfig --name "$1" --alias "$2" --kubeconfig $CHI_K8S_KUBECONFIG $dryRun
 }
 
 function awsEksRegisterClusters() {
@@ -135,12 +134,12 @@ function awsEksRegisterKnownCluster() {
 }
 
 function awsEksGetKnownClusters() {
-    local inlineClusters=$(chiReadChainnConfigField 'k8s-env' 'eksClusters' | jq -c '. | to_entries[]')
+    local inlineClusters=$(chiConfigChainReadField 'cloud:aws' 'eksClusters' | jq -c 'to_entries[]')
 
     local eksFilePath
     eksFilePath=$(json5Convert $(chiGetLocation)/eksClusters.json5)
     [[ $? -eq 0 ]] || return 1
-    local defaultClusters=$(jsonReadFile "$eksFilePath" | jq -c '. | to_entries[]')
+    local defaultClusters=$(jsonReadFile "$eksFilePath" | jq -c 'to_entries[]')
 
     echo -e "$defaultClusters\n$inlineClusters"
 }
