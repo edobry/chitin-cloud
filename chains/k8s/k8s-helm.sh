@@ -93,19 +93,13 @@ function helmRepoGetCredentials() {
 # gets the latest version of a given Helm chart
 # args: chart path
 function helmChartGetLatestRemoteVersion() {
-    local isOci
-    if [[ "$1" == "oci" ]]; then
-        isOci=true
-        shift
-    else
-        isOci=false
-    fi
-
-    requireArg "a chart identifier" "$1" || return 1
-
-    if $isOci; then
+    if [[ "$1" == "oci"* ]]; then
+        [[ "$1" == "oci" ]] && shift
+        
         helmChartGetLatestRegistryVersion $*
     else
+        requireArg "a chart identifier" "$1" || return 1
+
         helmChartGetLatestRepoVersion $*
     fi
 }
@@ -123,11 +117,26 @@ function helmChartGetLatestRepoVersion() {
 }
 
 function helmChartGetLatestRegistryVersion() {
-    requireArg "a registry domain" "$1" || return 1
-    requireArg "a namespace" "$2" || return 1
-    requireArg "a chart name" "$3" || return 1
+    local registryDomain
+    local chartNamespace
+    local chartName
 
-    dockerCurlListTags "$1" "$2" "$3" | \
+    if [[ "$1" == "oci"* ]]; then
+        local chartUrl=$(echo "${1#oci://}")
+        registryDomain=$(echo "$chartUrl" | cut -d'/' -f1)
+        chartNamespace=$(echo "$chartUrl" | cut -d'/' -f2)
+        chartName="$(echo "$chartUrl" | cut -d'/' -f3)/$(echo "$chartUrl" | cut -d'/' -f4)"
+    else
+        requireArg "a registry domain" "$1" || return 1
+        requireArg "a namespace" "$2" || return 1
+        requireArg "a chart name" "$3" || return 1
+
+        registryDomain="$1"
+        chartNamespace="$2"
+        chartName="$3"
+    fi
+
+    dockerCurlListTags "$registryDomain" "$chartNamespace" "$chartName" |
         jq -r '[
             .manifest[] | { timeUploadedMs, tag } 
                 | select(.tag | length > 0)
@@ -138,19 +147,13 @@ function helmChartGetLatestRegistryVersion() {
 # checks whether the given version of the given Helm chart exists
 # args: chart path, chart version
 function helmChartCheckRemoteVersion() {
-    local isOci
-    if [[ "$1" == "oci" ]]; then
-        isOci=true
-        shift
+    if [[ "$1" == "oci"* ]]; then
+        [[ "$1" == "oci" ]] && shift
+        
+        helmChartCheckRegistryVersion $@
     else
-        isOci=false
-    fi
+        requireArg "a chart identifier" "$1" || return 1
 
-    requireArg "a chart identifier" "$1" || return 1
-
-    if $isOci; then
-        helmChartCheckRegistryVersion $*
-    else
         helmChartCheckRepoVersion $*
     fi
 }
@@ -194,20 +197,16 @@ function helmChartGetLocalVersion() {
 # args: chart source, chart path
 function helmChartGetLatestVersion() {
     requireArgOptions "a chart source" "$1" "remote" "local" || return 1
-    requireArg "a chart path" "$2" || return 1
+    requireArg "a chart identifier" "$2" || return 1
 
-    local source="$1"
-    local chartPath="$2"
+    local source="$1"; shift
 
     local chartVersion;
-    if [[ $source = "remote" ]]; then
-        chartVersion=$(helmChartGetLatestRemoteVersion "$chartPath")
-    elif [[ $source = "local" ]]; then
-        chartVersion=$(helmChartGetLocalVersion "$chartPath")
-    else return 1; fi
-    [[ $? -ne 0 ]] && return 1
-
-    echo $chartVersion
+    if [[ "$source" = "remote" ]]; then
+        helmChartGetLatestRemoteVersion $*
+    elif [[ "$source" = "local" ]]; then
+        helmChartGetLocalVersion $*
+    fi
 }
 
 # checks the version of a given Helm chart against a desired version
@@ -227,4 +226,17 @@ function helmChartCheckVersion() {
     elif [[ $source = "local" ]]; then
         [[ $version = $(helmChartGetLocalVersion "$chartPath") ]]
     fi
+}
+
+function kustomizeUpdateChartVersionToLatest() {
+    requireYamlArg "kustomization file path" "$1" || return 1
+
+    local chart=$(yamlReadFile kustomization.yaml '.helmCharts[0] | { name, repo, version }')
+
+    local chartName=$(jsonReadPath "$chart" name)
+    local chartRepo=$(jsonReadPath "$chart" repo)
+
+    local latestVersion="$(helmChartGetLatestVersion remote "$chartRepo/$chartName")"
+
+    yamlFileSetFieldWrite "$1" "$latestVersion" helmCharts 0 version
 }

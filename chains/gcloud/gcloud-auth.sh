@@ -17,15 +17,15 @@ function gcloudAccount() {
 # checks if you're authenticated, or fails. meant to be used as a failfast
 function gcloudCheckAuthAndFail() {
     if ! gcloudCheckAuth; then
-        echo "Please authenticate with Google Cloud before rerunning."
+        echo "Please authenticate with Google Cloud before rerunning." >&2
         return 1
     fi
 }
 
 # checks if you're authenticated
 function gcloudCheckAuth() {
-    if ! gcloudId > /dev/null 2>&1; then
-        echo "Unauthenticated!"
+    if ! gcloud auth print-access-token --quiet > /dev/null 2>&1; then
+        echo "Unauthenticated!" >&2
         return 1
     fi
 }
