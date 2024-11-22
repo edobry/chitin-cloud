@@ -2,6 +2,12 @@ function gcloudConfigPath() {
     gcloud info --format="get(config.paths.active_config_path)"
 }
 
+function gcloudDockerConfigure() {
+    requireArg "a registry name" "$1" || return 1
+
+    gcloud auth configure-docker
+}
+
 function gcloudListSnapshots() {
     gcloud compute snapshots list --format="get(name)"
 }
