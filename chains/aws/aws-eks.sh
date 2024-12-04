@@ -228,3 +228,22 @@ function awsEksGetContextClusterName() {
 function awsEksGetCurrentContextClusterName() {
     awsEksGetContextClusterName $(kubectl config current-context)
 }
+
+function awsEksCreateEbsVolumeTags() {
+    requireArg "a namespace" "$1" || return 1
+    requireArg "a persistent volume claim name" "$2" || return 1
+    requireArg "a deployment" "$3" || return 1
+    requireArg "a product" "$4" || return 1
+
+    local namespace="$1"
+    local persistentVolumeClaimName="$2"
+    local deployment="$3"
+    local product="$4"
+
+    local volumeId="$(k8sFindVolumeIdByPvc "$1" "$2")"
+
+    [[ -z "$volumeId" ]] && return 1
+
+    echo "tagging volumeId: $volumeId deployment: $deployment product=$product"
+    aws ec2 create-tags --resources "$volumeId" --tags Key=kube_deployment,Value=$deployment Key=Name,Value=$deployment Key=product,Value=$product
+}
