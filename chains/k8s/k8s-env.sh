@@ -47,3 +47,12 @@ function k9sEnv() {
     echo "Launching K9s in context '$1', namespace '$2'"
     k9s --context "$1" --namespace "$2" -c deployments
 }
+
+function k8sListContexts() {
+    kubectl config get-contexts --output name
+}
+
+function k8sListNamespaces() {
+    local contextVar=${1:+"--context="}${1}
+    kubectl ${contextVar} get namespaces --output name | sed 's/namespace\///'
+}
