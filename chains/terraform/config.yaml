@@ -17,5 +17,8 @@ tools:
     optional: true
     brew:
       tap: warrensbox/tap
+  hcl2json:
+    brew: true
 toolDeps:
   - tfenv
+  - hcl2json

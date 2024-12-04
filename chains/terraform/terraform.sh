@@ -117,11 +117,6 @@ function tgGetSource() {
         filePath="$PWD/$tgFile"
     fi
 
-    if ! checkCommand 'hcl2json'; then
-        echo "hcl2json not installed!"
-        return 1
-    fi
-
     hcl2json "$filePath" | jq -r '.terraform[].source'
 }
 
