@@ -31,6 +31,11 @@ function gcloudGkeClusterInit() {
 
     local kubeConfig="${5:-$KUBECONFIG}"
 
+    if k8sCheckContextExists "$alias"; then
+        chiLog "context '$alias' already exists, skipping..." "cloud:gcloud"
+        return 0
+    fi
+
     KUBECONFIG="$kubeConfig" gcloud container clusters get-credentials "$name" \
         --region "$region" --project "$project"
 
@@ -62,10 +67,10 @@ function gcloudGkeRegisterClusters() {
     local iter
 
     while IFS= read -r cluster; do
-        local clusterName=$(jsonReadPath "$cluster" key)
+        local alias=$(jsonReadPath "$cluster" key)
 
         [[ -z "$iter" ]] || echo ""
-        echo "Registering GKE cluster '$clusterName'..."
+        chiLog "registering GKE cluster '$alias'..." "cloud:gcloud"
         iter=' '
 
         gcloudGkeClusterInitFromEntry "$cluster" "$CHI_CLOUD_K8S_KUBECONFIG"

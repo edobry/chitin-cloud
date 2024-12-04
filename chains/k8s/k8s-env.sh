@@ -52,7 +52,15 @@ function k8sListContexts() {
     kubectl config get-contexts --output name
 }
 
+function k8sCheckContextExists() {
+    requireArg "a context name" "$1" || return 1
+
+    k8sListContexts | ggrep -q "^$1$"
+}
+
 function k8sListNamespaces() {
+    gcloudCheckAuthAndFail || return 1
+
     local contextVar=${1:+"--context="}${1}
     kubectl ${contextVar} get namespaces --output name | sed 's/namespace\///'
 }
