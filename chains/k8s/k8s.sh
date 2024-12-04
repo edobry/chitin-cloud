@@ -193,3 +193,7 @@ function k8sActionResourceWithAppLabel() {
 
     kubectl "$action" "$resourceType" --selector="app.kubernetes.io/$label=$labelValue" $@
 }
+
+function k8sListExternalDnsEndpoints() {
+    kubectl get -A dnsendpoints.externaldns.k8s.io --output=json | jq -r '.items[].spec.endpoints[].dnsName'
+}
