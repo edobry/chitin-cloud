@@ -3,7 +3,7 @@ function k8sLoadBundledKubeconfig() {
     local bundledConfig="$(jsonReadPath "$chainConfig" bundledConfig)"
     [[ -z "$bundledConfig" ]] && return 0
 
-    local bundledConfigPath="$(expandPath $(jsonReadPath "$bundledConfig" path))"
+    local bundledConfigPath="$(chiExpandPath $(jsonReadPath "$bundledConfig" path))"
     if [[ -z "$bundledConfigPath" ]]; then
         chiLog "bundled kubeconfig path not set!" cloud:k8s
         return 1

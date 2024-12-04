@@ -19,12 +19,23 @@ function gcloudGkeGetClusterRegion() {
 }
 
 function gcloudGkeClusterInit() {
-    requireArg "a region" "$1" || return 1
-    requireArg "a cluster name" "$2" || return 1
+    requireArg "a cluster alias" "$1" || return 1
+    requireArg "a project" "$2" || return 1
+    requireArg "a region" "$3" || return 1
+    requireArg "a cluster name" "$4" || return 1
 
-    local project="${3:"$(gcloudGetProject)"}"
+    local alias="$1"
+    local project="$2"
+    local region="$3"
+    local name="$4"
 
-    gcloud container clusters get-credentials "$2" --region "$1" --project "$project"
+    local kubeConfig="${5:-$KUBECONFIG}"
+
+    KUBECONFIG="$kubeConfig" gcloud container clusters get-credentials "$name" \
+        --region "$region" --project "$project"
+
+    local generatedName="gke_${project}_${region}_${name}"
+    kubectl --kubeconfig "$kubeConfig" config rename-context "$generatedName" "$alias"
 }
 
 function gcloudGkeClusterInitFromEntry() {
@@ -32,15 +43,21 @@ function gcloudGkeClusterInitFromEntry() {
 
     local cluster="$1"
 
+    local alias="$(jsonReadPath "$cluster" key)"
+    local project="$(jsonReadPath "$cluster" value project)"
     local region="$(jsonReadPath "$cluster" value region)"
     local name="$(jsonReadPath "$cluster" value name)"
-    local project="$(jsonReadPath "$cluster" value project)"
 
-    gcloudGkeClusterInit "$region" "$name" "$project"
+    gcloudGkeClusterInit "$alias" "$project" "$region" "$name" "$2"
 }
 
 function gcloudGkeRegisterClusters() {
     gcloudCheckAuthAndFail || return 1
+
+    local defaultRegion
+    if [[ "$1" == "defaultRegion" ]]; then
+        defaultRegion="$2"; shift; shift
+    fi
 
     local iter
 
@@ -51,7 +68,7 @@ function gcloudGkeRegisterClusters() {
         echo "Registering GKE cluster '$clusterName'..."
         iter=' '
 
-        gcloudGkeClusterInitFromEntry "$cluster"
+        gcloudGkeClusterInitFromEntry "$cluster" "$CHI_CLOUD_K8S_KUBECONFIG"
     done <<< "${1:"$(gcloudGkeGetKnownClusters)"}"
 }
 

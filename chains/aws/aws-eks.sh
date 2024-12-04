@@ -105,7 +105,7 @@ function awsEksRegisterCluster() {
 
     local dryRun=$([[ "$3" == 'dryrun' ]] && echo '--dry-run' || echo '')
 
-    aws eks update-kubeconfig --name "$1" --alias "$2" --kubeconfig $CHI_K8S_KUBECONFIG $dryRun
+    aws eks update-kubeconfig --name "$1" --alias "$2" --kubeconfig $CHI_CLOUD_K8S_KUBECONFIG $dryRun
 }
 
 function awsEksRegisterClusters() {
