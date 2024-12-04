@@ -2,7 +2,7 @@ enabled: false
 installToolDeps: true
 tools:
   gcloud:
-    version: 501.0.0
+    version: 502.0.0
     versionCommand: gcloud --version 2>/dev/null | head -n 1 | getColumn 4
     checkCommand: true
     brew:
