@@ -1,5 +1,4 @@
 enabled: false
-installToolDeps: true
 tools:
   gcloud:
     version: 502.0.0

@@ -1,5 +1,4 @@
 enabled: true
-installToolDeps: true
 tools:
   tfenv:
     brew: true

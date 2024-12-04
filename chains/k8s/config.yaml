@@ -72,4 +72,3 @@ toolDeps:
   - k9s
   - helm
   - oras
-installToolDeps: true
