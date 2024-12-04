@@ -194,6 +194,14 @@ function k8sActionResourceWithAppLabel() {
     kubectl "$action" "$resourceType" --selector="app.kubernetes.io/$label=$labelValue" $@
 }
 
+# function kubectlCtx() {
+#     local contextVar=${1:+"--context="}${1}
+#     kubectl ${contextVar}
+# }
+
 function k8sListExternalDnsEndpoints() {
-    kubectl get -A dnsendpoints.externaldns.k8s.io --output=json | jq -r '.items[].spec.endpoints[].dnsName'
+    gcloudCheckAuthAndFail || return 1
+
+    local contextVar=${1:+"--context="}${1}
+    kubectl ${contextVar} get -A dnsendpoints.externaldns.k8s.io --output=json | jq -r '.items[].spec.endpoints[].dnsName'
 }

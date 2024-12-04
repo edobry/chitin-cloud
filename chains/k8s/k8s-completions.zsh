@@ -40,6 +40,7 @@ compdef _k8s_complete_contexts k8sListNamespaces
 compdef _k8s_complete_pods k8sGetPodConfig
 
 compdef _k8s_complete_services k8sGetServiceExternalUrl k8sGetServiceEndpoint
+compdef _k8s_complete_contexts k8sListExternalDnsEndpoints
 
 compdef _k8s_complete_deployments k8sDownDeploy k8sDownDeployAndWait k8sUpDeploy k8sReDeploy \
     k8sKillDeploymentPods k8sGetDeploymentSelector k8sGetDeploymentPods k8sDeploymentHasPods k8sWaitForDeploymentScaleDown
