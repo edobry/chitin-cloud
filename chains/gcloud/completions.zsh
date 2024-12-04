@@ -27,6 +27,6 @@ function _gcloud_complete_gke_cluster_init() {
     esac
 }
 
-compdef _gcloud_complete_projects gcloudSetProject
+compdef _gcloud_complete_projects gcloudSetProject gcloudWithProject
 compdef _gcloud_complete_gke_clusters gcloudGkeGetCluster gcloudGkeGetClusterRegion
 compdef _gcloud_complete_gke_cluster_init gcloudGkeClusterInit

@@ -63,3 +63,12 @@ function gcloudSetProject() {
 
     gcloud config set project "$1"
 }
+
+function gcloudWithProject() {
+    requireArg "a project name" "$1" || return 1
+
+    local projectName="$1"; shift
+
+    gcloud config set project "$projectName"
+    $*
+}
