@@ -199,9 +199,22 @@ function k8sActionResourceWithAppLabel() {
 #     kubectl ${contextVar}
 # }
 
+function k8sGetExternalDnsEndpoints() {
+    gcloudCheckAuthAndFail || return 1
+
+    local contextVar="${1:+"--context="}${1}"
+    local namespaceVar="${2:+"--namespace="}${2:-"-A"}"
+    kubectl ${contextVar} get "${namespaceVar}" dnsendpoints.externaldns.k8s.io --output=json | jq -c
+}
+
 function k8sListExternalDnsEndpoints() {
     gcloudCheckAuthAndFail || return 1
 
-    local contextVar=${1:+"--context="}${1}
-    kubectl ${contextVar} get -A dnsendpoints.externaldns.k8s.io --output=json | jq -r '.items[].spec.endpoints[].dnsName'
+    k8sGetExternalDnsEndpoints $* | jq -r '.items[].spec.endpoints[].dnsName'
+}
+
+function k8sListExternalDnsEndpointNames() {
+    gcloudCheckAuthAndFail || return 1
+
+    k8sGetExternalDnsEndpoints $* | jq -r '.items[].metadata.name'
 }
