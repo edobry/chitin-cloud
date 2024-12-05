@@ -118,3 +118,9 @@ function k8sDeletePodsWithAppLabel() {
 
     k8sActionResourceWithAppLabel delete pods "$1" "$2" -o name
 }
+
+function k8sQueryPodEnvvars() {
+    requireArg "a pod name" "$1" || return 1
+
+    kubectl exec -it "$1" -- env
+}
