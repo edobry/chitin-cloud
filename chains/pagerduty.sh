@@ -1,7 +1,7 @@
 export CA_SLACK_WORKSPACE_ID=T04CGLUB1
 
 function pdGetToken() {
-    local parameterName=$(chiConfigChainReadField pagerduty parameterName)
+    local parameterName=$(chiConfigUserReadField pagerduty parameterName)
     awsSsmGetParam "$parameterName"
 }
 

@@ -86,5 +86,5 @@ function gcloudGkeRegisterKnownCluster() {
 }
 
 function gcloudGkeGetKnownClusters() {
-    chiConfigChainReadField cloud:gcloud gkeClusters | jq -c 'to_entries[]'
+    chiConfigUserReadField cloud gcloud gkeClusters | jq -c 'to_entries[]'
 }

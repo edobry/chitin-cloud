@@ -5,26 +5,20 @@ export CHI_CA_AWS_CONFIG_ROOT=$CHI_CA_DIR/terraform
 export CHI_CA_AWS_CONFIG_PATH=util/aws/config
 export CHI_CA_AWS_CONFIG=$CHI_CA_AWS_CONFIG_ROOT/$CHI_CA_AWS_CONFIG_PATH
 
-function awsAuthChainInit() {
-    chiConfigChainCheckBoolean aws envEnabled
-}
-
-awsAuthChainInit || return 0
-
 function awsAuthInit() {
     # if we're already initialized, we're done
     ([[ $CHI_CA_AWS_ENV_INIT = "true" ]] && [[ -f $CHI_CA_AWS_CONFIG ]]) && return 0
 
     # set google username
 
-    local googleUsername=$(chiConfigChainRead aws googleUsername)
+    local googleUsername=$(chiConfigUserReadField aws googleUsername)
     if [[ -z $googleUsername ]]; then
         echo "The DT config field aws-auth.googleUsername must be set to your email address."
         return 1
     fi
     export CHI_GOOGLE_USERNAME=$googleUsername
 
-    local departmentRole=$(chiConfigChainRead aws departmentRole)
+    local departmentRole=$(chiConfigUserReadField aws departmentRole)
     export CHI_AWS_DEPT_ROLE=$departmentRole
 
     export AWS_SDK_LOAD_CONFIG=1
@@ -65,7 +59,7 @@ function initAutoAwsAuth() {
     # if we're already initialized, we're done
     [[ $CHI_CA_AWS_ENV_INIT = "true" ]] && return 0
 
-    local programmaticAuth=$(chiConfigChainRead aws programmaticAuth)
+    local programmaticAuth=$(chiConfigUserReadField aws programmaticAuth)
     if [[ "$programmaticAuth" == 'true' ]]; then
         export CHI_CA_AWS_AUTH_INIT=true
         awsInitProgrammaticAuth
@@ -74,7 +68,7 @@ function initAutoAwsAuth() {
 
     awsAuthInit
 
-    local automaticAuth=$(chiConfigChainRead aws automaticAuth)
+    local automaticAuth=$(chiConfigUserReadField aws automaticAuth)
     if [[ "$automaticAuth" == 'true' ]]; then
         export CHI_CA_AWS_AUTH_INIT=true
         awsInitAutomaticAuth
@@ -83,7 +77,7 @@ function initAutoAwsAuth() {
 }
 
 function awsInitProgrammaticAuth() {
-    local programmaticRole=$(chiConfigChainRead aws programmaticRole)
+    local programmaticRole=$(chiConfigUserReadField aws programmaticRole)
 
     # await authorization complete...
     local roleArn=$(awsIamGetRoleArn $programmaticRole 2>/dev/null)
@@ -97,7 +91,7 @@ function awsInitProgrammaticAuth() {
 }
 
 function awsInitAutomaticAuth() {
-    local profile=$(chiConfigChainRead aws defaultProfile)
+    local profile=$(chiConfigUserReadField aws defaultProfile)
     if [[ -z $profile ]]; then
         chiLog "automaticAuth enabled, but defaultProfile not set!"
         return 1
