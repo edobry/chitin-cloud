@@ -134,7 +134,7 @@ function awsEksRegisterKnownCluster() {
 }
 
 function awsEksGetKnownClusters() {
-    local inlineClusters=$(chiConfigUserReadField cloud aws eksClusters | jq -c 'to_entries[]')
+    local inlineClusters=$(chiConfigUserRead cloud aws eksClusters | jq -c 'to_entries[]')
 
     local eksFilePath
     eksFilePath=$(json5Convert $(chiGetLocation)/eksClusters.json5)

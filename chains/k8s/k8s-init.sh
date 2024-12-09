@@ -1,5 +1,5 @@
 function k8sLoadBundledKubeconfig() {
-    local chainConfig="$(chiConfigUserReadField cloud k8s)"
+    local chainConfig="$(chiConfigUserRead cloud k8s)"
     local bundledConfig="$(jsonReadPath "$chainConfig" bundledConfig)"
     [[ -z "$bundledConfig" ]] && return 0
 

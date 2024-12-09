@@ -11,14 +11,14 @@ function awsAuthInit() {
 
     # set google username
 
-    local googleUsername=$(chiConfigUserReadField aws googleUsername)
+    local googleUsername=$(chiConfigUserRead cloud aws googleUsername)
     if [[ -z $googleUsername ]]; then
         echo "The DT config field aws-auth.googleUsername must be set to your email address."
         return 1
     fi
     export CHI_GOOGLE_USERNAME=$googleUsername
 
-    local departmentRole=$(chiConfigUserReadField aws departmentRole)
+    local departmentRole=$(chiConfigUserRead cloud aws departmentRole)
     export CHI_AWS_DEPT_ROLE=$departmentRole
 
     export AWS_SDK_LOAD_CONFIG=1
@@ -59,7 +59,7 @@ function initAutoAwsAuth() {
     # if we're already initialized, we're done
     [[ $CHI_CA_AWS_ENV_INIT = "true" ]] && return 0
 
-    local programmaticAuth=$(chiConfigUserReadField aws programmaticAuth)
+    local programmaticAuth=$(chiConfigUserRead cloud aws programmaticAuth)
     if [[ "$programmaticAuth" == 'true' ]]; then
         export CHI_CA_AWS_AUTH_INIT=true
         awsInitProgrammaticAuth
@@ -68,7 +68,7 @@ function initAutoAwsAuth() {
 
     awsAuthInit
 
-    local automaticAuth=$(chiConfigUserReadField aws automaticAuth)
+    local automaticAuth=$(chiConfigUserRead cloud aws automaticAuth)
     if [[ "$automaticAuth" == 'true' ]]; then
         export CHI_CA_AWS_AUTH_INIT=true
         awsInitAutomaticAuth
@@ -77,7 +77,7 @@ function initAutoAwsAuth() {
 }
 
 function awsInitProgrammaticAuth() {
-    local programmaticRole=$(chiConfigUserReadField aws programmaticRole)
+    local programmaticRole=$(chiConfigUserRead cloud aws programmaticRole)
 
     # await authorization complete...
     local roleArn=$(awsIamGetRoleArn $programmaticRole 2>/dev/null)
@@ -91,7 +91,7 @@ function awsInitProgrammaticAuth() {
 }
 
 function awsInitAutomaticAuth() {
-    local profile=$(chiConfigUserReadField aws defaultProfile)
+    local profile=$(chiConfigUserRead cloud aws defaultProfile)
     if [[ -z $profile ]]; then
         chiLog "automaticAuth enabled, but defaultProfile not set!"
         return 1

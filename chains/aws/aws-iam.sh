@@ -109,7 +109,7 @@ function awsIamCreateProgrammaticCreds() {
         roleName="$1"
     fi
 
-    local googleUsername=$(chiConfigUserRead '.chains["aws-auth"].googleUsername' -r)
+    local googleUsername=$(chiConfigUserRead cloud aws chains aws-auth googleUsername)
     local newIamSuffix="programmatic-tmp-$(randomString 5)"
     local newIamUsername="$googleUsername-$newIamSuffix"
 
