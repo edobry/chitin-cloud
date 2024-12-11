@@ -1,0 +1,9 @@
+moduleConfig:
+  aws:
+    enabled: false
+  ansible:
+    enabled: false
+  kafka:
+    enabled: false
+  gcloud:
+    enabled: false

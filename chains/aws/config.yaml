@@ -1,4 +1,3 @@
-enabled: false
 tools:
 # aws
   gimme-aws-creds:
