@@ -23,7 +23,7 @@ function k8sLoadBundledKubeconfig() {
 
     # TODO: add init var for idempotency
     local conditionalPrepend="$originalConfig:"
-    jsonCheckBoolPath "$bundledConfig" override && conditionalPrepend=''
+    jsonCheckBool "$bundledConfig" override && conditionalPrepend=''
     
     export KUBECONFIG="${conditionalPrepend}${CHI_CLOUD_K8S_KUBECONFIG}"
 }
