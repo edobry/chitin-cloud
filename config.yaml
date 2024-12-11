@@ -2,7 +2,7 @@ tools:
   aws:
     optional: true
     version: 2.0.57
-    versionCommand: "aws --version | awk '{ print $1 }' | sed 's/aws-cli\\///'"
+    versionCommand: "aws --version | awk '{ print $1 }' | cut -d'/' -f2"
     brew:
       name: awscli
 fiberDeps:
