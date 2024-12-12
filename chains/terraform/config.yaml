@@ -8,14 +8,16 @@ tools:
     brew: true
   terraformer:
     brew: true
-  minamijoyo/tfmigrate/tfmigrate:
+  tfmigrate:
     optional: true
     brew:
       tap: minamijoyo/tfmigrate
-  warrensbox/tap/tgswitch:
+      name: minamijoyo/tfmigrate/tfmigrate
+  tgswitch:
     optional: true
     brew:
       tap: warrensbox/tap
+      name: warrensbox/tap/tgswitch
   hcl2json:
     brew: true
 toolDeps:
