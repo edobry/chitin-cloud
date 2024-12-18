@@ -18,6 +18,7 @@ function _k8s_complete_ctx_and_ns() {
             compadd $(k8sListNamespaces $words[2])
             ;;
     esac
+    return 1
 }
 
 function _k8s_complete_pods() {
