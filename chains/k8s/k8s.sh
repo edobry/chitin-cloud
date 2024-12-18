@@ -129,16 +129,26 @@ function k8sGetDeploymentPods() {
     kubectl get pods --selector="$(k8sGetDeploymentSelector "$deploymentName")" $*
 }
 
+function k8sListResource() {
+    requireArg "a resource type" "$1" || return 1
+
+    kubectl get "$1" --output custom-columns=NAME:.metadata.name --no-headers
+}
+
 function k8sListDeployments() {
-    kubectl get deployments | tail -n +2 | cut -d ' ' -f 1
+    k8sListResource deployments
+}
+
+function k8sListStatefulsets() {
+    k8sListResource statefulsets
 }
 
 function k8sListPods() {
-    kubectl get pods | tail -n +2 | cut -d ' ' -f 1
+    k8sListResource pods
 }
 
 function k8sListServices() {
-    kubectl get services | tail -n +2 | cut -d ' ' -f 1
+    k8sListResource services
 }
 
 function k8sApplyInstance() {
@@ -202,19 +212,17 @@ function k8sActionResourceWithAppLabel() {
 function k8sGetExternalDnsEndpoints() {
     gcloudCheckAuthAndFail || return 1
 
-    local contextVar="${1:+"--context="}${1}"
-    local namespaceVar="${2:+"--namespace="}${2:-"-A"}"
-    kubectl ${contextVar} get "${namespaceVar}" dnsendpoints.externaldns.k8s.io --output=json | jq -c
+    kubectl get dnsendpoints.externaldns.k8s.io --output=json | jq -c
 }
 
 function k8sListExternalDnsEndpoints() {
     gcloudCheckAuthAndFail || return 1
 
-    k8sGetExternalDnsEndpoints $* | jq -r '.items[].spec.endpoints[].dnsName'
+    k8sGetExternalDnsEndpoints | jq -r '.items[].spec.endpoints[].dnsName'
 }
 
 function k8sListExternalDnsEndpointNames() {
     gcloudCheckAuthAndFail || return 1
 
-    k8sGetExternalDnsEndpoints $* | jq -r '.items[].metadata.name'
+    k8sGetExternalDnsEndpoints | jq -r '.items[].metadata.name'
 }
