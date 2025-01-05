@@ -19,7 +19,7 @@ chiK8sConfigureKubeconfig
 
 function k8sInitConfig() {
     if [[ ! -f "$CHI_CLOUD_K8S_KUBECONFIG" ]]; then
-        chiLog "Initializing k8s-env configuration..."
+        chiLogInfo "Initializing k8s-env configuration..." cloud k8s
         # gcloudAuth && gcloudGkeRegisterClusters
     fi
 }

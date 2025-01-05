@@ -93,7 +93,7 @@ function awsInitProgrammaticAuth() {
 function awsInitAutomaticAuth() {
     local profile=$(chiConfigUserRead cloud aws defaultProfile)
     if [[ -z $profile ]]; then
-        chiLog "automaticAuth enabled, but defaultProfile not set!"
+        chiLogError "automaticAuth enabled, but defaultProfile not set!" cloud aws
         return 1
     fi
     # echo "authorizing $profile..."
