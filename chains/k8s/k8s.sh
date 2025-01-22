@@ -226,3 +226,25 @@ function k8sListExternalDnsEndpointNames() {
 
     k8sGetExternalDnsEndpoints | jq -r '.items[].metadata.name'
 }
+
+function k8sGetConfigmap() {
+    requireArg "a ConfigMap name" "$1" || return 1
+
+    gcloudCheckAuthAndFail || return 1
+
+    kubectl get configmap "$1" --output=json | jq -c
+}
+
+function k8sGetConfigmapEntry() {
+    requireArg "a ConfigMap name" "$1" || return 1
+    requireArg "a ConfigMap entry name" "$2" || return 1
+
+    k8sGetConfigmap "$1" | jq -r --arg name "$2" '.data.[$name]'
+}
+
+function k8sPortForward() {
+    requireArg "a pod name" "$1" || return 1
+    requireArg "a port" "$2" || return 1
+    
+    kubectl port-forward "$1" "$2:$2"
+}
