@@ -123,10 +123,9 @@ function k8sGetServiceExternalHostname() {
 function k8sGetDeploymentPods() {
     requireArg "a deployment name" "$1" || return 1
 
-    local deploymentName="$1"
-    shift
+    local deploymentName="$1"; shift
 
-    kubectl get pods --selector="$(k8sGetDeploymentSelector "$deploymentName")" $*
+    k8sGetPodsWithSelector "$deploymentName" "$(k8sGetDeploymentSelector "$deploymentName")" $*
 }
 
 function k8sListResource() {
@@ -151,19 +150,6 @@ function k8sListServices() {
     k8sListResource services
 }
 
-function k8sApplyInstance() {
-    requireArg "an instance name" "$1" || return 1
-    requireArg "the manifest directory" "$2" || return 1
-
-    kubectl apply -f "$2" -l instance="$1"
-}
-
-function k8sDeleteInstance() {
-    requireArg "an instance name" "$1" || return 1
-
-    kubectl delete -l instance="$1" $(k8sGetResourceList delete)
-}
-
 function k8sGetResourceList() {
     requireArg "an API verb" "$1" || return 1
 
@@ -174,40 +160,44 @@ function k8sGetAllResources() {
     kubectl get $(k8sGetResourceList list) --ignore-not-found $@
 }
 
-function k8sGetResourcesWithAppLabel() {
-    requireArg "a resource type" "$1" || return 1
-    requireArg "an app label" "$2" || return 1
-    requireArg "an app label value" "$3" || return 1
-
-    k8sActionResourceWithAppLabel get "$1" "$2" "$3" -o custom-columns=:.metadata.name
-}
-
-function k8sGetPodsWithAppLabel() {
+function k8sSelectorMakeAppLabel() {
     requireArg "an app label" "$1" || return 1
     requireArg "an app label value" "$2" || return 1
 
-    k8sGetResourcesWithAppLabel pods "$1" "$2"
+    echo "app.kubernetes.io/$1=$2"
 }
 
-function k8sActionResourceWithAppLabel() {
+function k8sSelectorMakeInstanceLabel() {
+    requireArg "an instance name" "$1" || return 1
+
+    k8sSelectorMakeAppLabel instance "$1"
+}
+
+function k8sGetResourcesWithSelector() {
+    requireArg "a resource type" "$1" || return 1
+    requireArg "a selector" "$2" || return 1
+
+    k8sActionResourceWithSelector get "$1" "$2" -o custom-columns=:.metadata.name
+}
+
+function k8sGetPodsWithSelector() {
+    requireArg "a selector" "$1" || return 1
+
+    k8sGetResourcesWithSelector pods "$1"
+}
+
+function k8sActionResourceWithSelector() {
     requireArg "an action" "$1" || return 1
     requireArg "a resource type" "$2" || return 1
-    requireArg "an app label" "$3" || return 1
-    requireArg "an app label value" "$4" || return 1
+    requireArg "a selector" "$3" || return 1
     checkAuthAndFail || return 1
 
     local action="$1"; shift
     local resourceType="$2"; shift
-    local label="$3"; shift
-    local labelValue="$4"; shift
+    local selector="$3"; shift
 
-    kubectl "$action" "$resourceType" --selector="app.kubernetes.io/$label=$labelValue" $@
+    kubectl "$action" "$resourceType" --selector="$selector" $@
 }
-
-# function kubectlCtx() {
-#     local contextVar=${1:+"--context="}${1}
-#     kubectl ${contextVar}
-# }
 
 function k8sGetExternalDnsEndpoints() {
     gcloudCheckAuthAndFail || return 1

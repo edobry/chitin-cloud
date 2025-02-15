@@ -25,10 +25,22 @@ function k8sInitConfig() {
 }
 # k8sInitConfig
 
+function k8sGetContext() {
+    requireArg "a context name" "$1" || return 1
+
+    kubectl config view -o json | jq -cr --arg ctx "$1" \
+        '.contexts[] | select(.name == $ctx).context | .alias = $ctx'
+}
+
+function k8sGetContextCluster() {
+    requireArg "a context name" "$1" || return 1
+
+    k8sGetContext "$1" | jq -r '.cluster'
+}
+
 # gets the current k8s context config
 function k8sGetCurrentContext() {
-    kubectl config view -o json | jq -cr --arg ctx $(kubectl config current-context) \
-        '.contexts[] | select(.name == $ctx).context | .alias = $ctx'
+    k8sGetContext "$(kubectl config current-context)"
 }
 
 # deletes a k8s context
