@@ -1,6 +1,6 @@
 # lists all DyanmoDB tables
 function awsDynamoListTables() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws dynamodb list-tables
 }
@@ -9,7 +9,7 @@ function awsDynamoListTables() {
 # args: table name
 function awsDynamoListTableItems() {
     requireArg "a table name" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local tableName="$1"
 
@@ -21,7 +21,7 @@ function awsDynamoListTableItems() {
 function awsDynamoGetItem() {
     requireArg "a table name" "$1" || return 1
     requireArg "an item key" "$2" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local tableName="$1"
     local itemKey="$2"
@@ -36,7 +36,7 @@ function awsDynamoUpdateItem() {
     requireArg "an item key" "$2" || return 1
     requireArg "the item field to set" "$3" || return 1
     requireArg "the new item field value" "$4" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local tableName="$1"
     local itemKey="$2"
@@ -65,7 +65,7 @@ function awsDynamoUpdateItem() {
 function awsDynamoDeleteItem() {
     requireArg "a table name" "$1" || return 1
     requireArg "an item key" "$2" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local tableName="$1"
     local itemKey="$2"

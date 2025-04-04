@@ -190,7 +190,7 @@ function k8sActionResourceWithSelector() {
     requireArg "an action" "$1" || return 1
     requireArg "a resource type" "$2" || return 1
     requireArg "a selector" "$3" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local action="$1"; shift
     local resourceType="$2"; shift
@@ -200,19 +200,19 @@ function k8sActionResourceWithSelector() {
 }
 
 function k8sGetExternalDnsEndpoints() {
-    gcloudCheckAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     kubectl get dnsendpoints.externaldns.k8s.io --output=json | jq -c
 }
 
 function k8sListExternalDnsEndpoints() {
-    gcloudCheckAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     k8sGetExternalDnsEndpoints | jq -r '.items[].spec.endpoints[].dnsName'
 }
 
 function k8sListExternalDnsEndpointNames() {
-    gcloudCheckAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     k8sGetExternalDnsEndpoints | jq -r '.items[].metadata.name'
 }
@@ -220,7 +220,7 @@ function k8sListExternalDnsEndpointNames() {
 function k8sGetConfigmap() {
     requireArg "a ConfigMap name" "$1" || return 1
 
-    gcloudCheckAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     kubectl get configmap "$1" --output=json | jq -c
 }

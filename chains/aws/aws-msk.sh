@@ -1,20 +1,20 @@
 # lists all MSK clusters in the account, with names
 function awsMskListClusters() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     awsMskListClustersJSON | jq -r '"\(.ClusterName) - \(.ClusterArn)"'
 }
 
 # lists names of all MSK clusters in the account
 function awsMskListClusterNames() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     awsMskListClustersJSON | jq -r '.ClusterName'
 }
 
 # lists all MSK clusters in the account, with names
 function awsMskListClustersJSON() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws kafka list-clusters | jq -r '.ClusterInfoList[]'
 }
@@ -30,7 +30,7 @@ function awsMskFindClusterArnByName() {
 # finds the MSK cluster with the given name
 # args: MSK cluster name
 function awsMskFindClusterByNameJSON() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a cluster name" "$1" || return 1
 
@@ -40,7 +40,7 @@ function awsMskFindClusterByNameJSON() {
 # gets the connection string of the MSK cluster with the given identifier
 # args: MSK cluster name or ARN
 function awsMskGetConnection() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a cluster name" "$1" || return 1
 
@@ -57,7 +57,7 @@ function awsMskGetConnection() {
 # gets the Zookeeper connection string of the MSK cluster with the given identifier
 # args: MSK cluster name or ARN
 function awsMskGetZkConnection() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a cluster name" "$1" || return 1
 
@@ -74,7 +74,7 @@ function awsMskGetZkConnection() {
 # gets the broker list of the given MSK cluster with the given identifier
 # args: MSK cluster name or ARN
 function awsMskGetBrokers() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a cluster name" "$1" || return 1
 
@@ -91,7 +91,7 @@ function awsMskGetBrokers() {
 # gets the list of broker ARNs of the given MSK cluster with the given identifier
 # args: MSK cluster name or ARN
 function awsMskGetBrokerArns() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a cluster name" "$1" || return 1
 
@@ -108,7 +108,7 @@ function awsMskGetBrokerArns() {
 # reboots the MSK broker with the given cluster identifier and broker ID
 # args: MSK cluster name or ARN
 function awsMskRebootBroker() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a cluster name" "$1" || return 1
     requireArg "a broker ID" $2 || return 1

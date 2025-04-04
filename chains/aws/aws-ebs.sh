@@ -1,6 +1,6 @@
 function awsEbsGetVolumeName() {
     requireArg "a volume id" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws ec2 describe-volumes --volume-ids "$1" |\
         jq -r '.Volumes[].Tags[] | select(.Key=="Name").Value'
@@ -10,7 +10,7 @@ function awsEbsGetVolumeName() {
 # args: volumeId
 function awsEbsWatchVolumeModificationProgress() {
     requireArg "a volume identifier" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local volumeIds=$([[ $1 == "vol-"* ]] && echo "$1" || awsEbsFindVolumesByName $1)
 
@@ -21,7 +21,7 @@ function awsEbsWatchVolumeModificationProgress() {
 # watches an EBS volume snapshot currently being created and reports progress
 # args: snapshot name or id
 function awsEbsWatchSnapshotProgress() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a snapshot identifier" "$1" || return 1
 
@@ -32,13 +32,13 @@ function awsEbsWatchSnapshotProgress() {
 }
 
 function awsListAZsInCurrentRegion() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws ec2 describe-availability-zones | jq -r '.AvailabilityZones[] | .ZoneName'
 }
 
 function awsListAZs() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     for region in $(awsListRegions); do
         aws ec2 describe-availability-zones --region $region | jq -r '.AvailabilityZones[] | .ZoneName'
@@ -47,7 +47,7 @@ function awsListAZs() {
 
 
 function awsListRegions() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws ec2 describe-regions | jq -r '.Regions[] | .RegionName'
 }
@@ -55,7 +55,7 @@ function awsListRegions() {
 # checks whether an availability zone with the given name exists
 # args: availability zone name
 function awsCheckAZ() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     if ! aws ec2 describe-availability-zones --zone-names $1 > /dev/null 2>&1; then
         echo "AZ not found!"
@@ -95,7 +95,7 @@ function awsEbsFindSnapshot() {
 # deletes all EBS snapshots with the given name
 # args: EBS snapshot identifier
 function awsEbsDeleteSnapshots() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a snapshot identifier" "$1" || return 1
 
@@ -115,7 +115,7 @@ function awsEbsDeleteSnapshots() {
 # args: volume identifier
 function awsEbsShowVolumeTags() {
     requireArg "a volume identifier" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local volumeIds=$([[ $1 == "vol-"* ]] && echo "$1" || awsEbsFindVolumesByName $1)
 
@@ -137,7 +137,7 @@ function awsEbsTagVolume() {
     requireArg "a volume identifier" "$1" || return 1
     requireArg "the tag key" "$2" || return 1
     requireArg "the tag value" "$3" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local volumeIds=$([[ $1 == "vol-"* ]] && echo "$1" || awsEbsFindVolumesByName $1)
 
@@ -156,7 +156,7 @@ function awsEbsTagVolume() {
 # creates an EBS volume with the given name, either empty or from a snapshot
 # args: availability zone name, EBS volume name, (volume size in GB OR source snapshot identifier)
 function awsEbsCreateVolume() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a volume name" "$2" || return 1
 
@@ -221,7 +221,7 @@ function awsEbsListVolumes() {
 # sets the IOPS for the EBS volume with the given name or id
 # args: EBS volume identifier, new IOPS
 function awsEbsModifyVolumeIOPS() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a volume identifier" "$1" || return 1
 
@@ -244,7 +244,7 @@ function awsEbsModifyVolumeIOPS() {
 # resizes the EBS volume with the given name or id
 # args: EBS volume identifier, new size in GB
 function awsEbsResizeVolume() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a volume identifier" "$1" || return 1
 
@@ -268,7 +268,7 @@ function awsEbsResizeVolume() {
 # snapshots the EBS volume with the given name or id
 # args: EBS volume id, EBS snapshot name
 function awsEbsSnapshotVolume() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a volume identifier" "$1" || return 1
 
@@ -293,7 +293,7 @@ function awsEbsSnapshotVolume() {
 # polls the status of the given EBS snapshot until it is available
 # args: (optional) "quiet", EBS snapshot identifier
 function awsEbsWaitUntilSnapshotReady() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     unset quietMode
     if [[ "$1" == "quiet" ]]; then
@@ -321,7 +321,7 @@ function awsEbsWaitUntilSnapshotReady() {
 # deletes the EBS volumes with the given name
 # args: EBS volume name or id
 function awsEbsDeleteVolume() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a volume identifier" "$1" || return 1
 

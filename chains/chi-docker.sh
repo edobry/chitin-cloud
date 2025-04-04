@@ -45,7 +45,7 @@ function chiDockerShell() {
 
 function chiDockerShellRun() {
     requireArg "an image identifier" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local imageId="$1"
 

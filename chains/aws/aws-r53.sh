@@ -1,6 +1,6 @@
 # lists all hosted zones
 function awsR53ListZones() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws route53 list-hosted-zones | jq -r '.HostedZones[] | "\(.Id) \(.Name)"'
 }
@@ -21,7 +21,7 @@ function awsR53GetZoneId() {
 # args: hosted zone identifier
 function awsR53GetRecordsJson() {
     requireArg 'a hosted zone ID' "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local zoneId=$([[ "$1" == "/hostedzone/"* ]] && echo "$1" || awsR53GetZoneId "$1")
     if [[ -z $zoneId ]]; then

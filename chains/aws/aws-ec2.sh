@@ -2,7 +2,7 @@
 
 # lists existing EC2 instances
 function awsEc2ListInstances() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws ec2 describe-instances | jq -r \
         '.Reservations[].Instances[] | {
@@ -23,7 +23,7 @@ function awsEc2FindInstancesByName() {
 
 # lists existing EC2 keypairs
 function awsEc2ListKeypairs() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws ec2 describe-key-pairs | jq -r '.KeyPairs[].KeyName'
 }
@@ -31,7 +31,7 @@ function awsEc2ListKeypairs() {
 # creates an EC2 keypair and persists it in SSM
 # args: keypair name
 function awsEc2CreateKeypair() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'a keypair name' "$1" || return 1
 
     local keypairName="$1"
@@ -65,7 +65,7 @@ function awsEc2CreateKeypair() {
 # creates an EC2 keypair and persists it in SSM
 # args: keypair name
 function awsEc2CreateKeypairPublicKey() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'a keypair name' "$1" || return 1
 
     local accountName=$(awsAccountName)
@@ -106,7 +106,7 @@ function awsEc2CheckKeypairExistenceAndFail() {
 # deletes an existing EC2 keypair and removes it from SSM
 # args: keypair name
 function awsEc2DeleteKeypair() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'a keypair name' "$1" || return 1
 
     local keypairName="$1"
@@ -126,7 +126,7 @@ function awsEc2DeleteKeypair() {
 # reads a given EC2 Keypair out from SSM, persists locally, and permissions for use
 # args: keypair name
 function awsEc2DownloadKeypair() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'a keypair name' "$1" || return 1
 
     local keypairName="$1"
@@ -158,7 +158,7 @@ function awsEc2DownloadKeypair() {
 # queries the name of the keypair used for the given EC2 instance
 # args: instance identifier
 function awsEc2GetInstanceKeypairName() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'an instance identifier' "$1" || return 1
 
     local instanceIds=$([[ "$1" == "i-"* ]] && echo "$1" || awsEc2FindInstancesByName "$1")
@@ -175,7 +175,7 @@ function awsEc2GetInstanceKeypairName() {
 # queries the appropriate keypair for an EC2 instance and downloads it
 # args: instance name
 function awsEc2DownloadKeypairForInstance() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'a instance name' "$1" || return 1
 
     local instanceName="$1"
@@ -192,7 +192,7 @@ function awsEc2DownloadKeypairForInstance() {
 }
 
 function awsEc2ListNetworkInterfaceAddressesJson() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws ec2 describe-network-interfaces | jq -cr \
         '.NetworkInterfaces[] | {
@@ -209,14 +209,14 @@ function awsEc2ListNetworkInterfaceAddresses() {
 # gets the description for a given ENI
 # args: ENI ID
 function awsEc2GetNetworkInterface() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'network interface ID' "$1" || return 1
 
     aws ec2 describe-network-interfaces --network-interface-ids "$1"
 }
 
 function awsEc2GetInstancePrivateIp() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireArg 'an instance identifier' "$1" || return 1
 
     local instanceIds=$([[ "$1" == "i-"* ]] && echo "$1" || awsEc2FindInstancesByName "$1")
@@ -233,7 +233,7 @@ function awsEc2GetInstancePrivateIp() {
 }
 
 function awsEc2CheckInstanceTypeAvailability() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireAZ "$1" || return 1
     requireArg 'an instance type' "$2" || return 1
 
@@ -246,7 +246,7 @@ function awsEc2CheckInstanceTypeAvailability() {
 
 # handle AZs in other regions than the current one
 function awsEc2ListInstanceTypesAvailableInAz() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireAZ "$1" || return 1
 
     aws ec2 describe-instance-type-offerings --location-type "availability-zone" \
@@ -259,7 +259,7 @@ function awsEc2ListInstanceTypesAvailableInAz() {
 # lists all instance types available in a given region
 # args: region
 function awsEc2ListInstanceTypesAvailableInRegion() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     requireRegion "$1" || return 1
 
     aws ec2 describe-instance-type-offerings --location-type "region" \
@@ -270,7 +270,7 @@ function awsEc2ListInstanceTypesAvailableInRegion() {
 
 # lists all instance types available in all regions
 function awsEc2ListInstanceTypesAvailableInAllRegions() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     # iterate over awsListRegions and print the available instance types for each region
     for region in $(awsListRegions); do

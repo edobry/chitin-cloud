@@ -2,7 +2,7 @@
 # args: svc acc name
 function k8sGetServiceAccountToken() {
     requireArg "a service account name" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local serviceAccountTokenName=$(kubectl get serviceaccounts $1 -o json | jq -r '.secrets[0].name')
     kubectl get secrets $serviceAccountTokenName -o json | jq -r '.data.token' | base64Decode
@@ -33,7 +33,7 @@ function k8sCreateTmpSvcAccContext() {
 function k8sRunAsServiceAccount() {
     requireArg "a service account name" "$1" || return 1
     requireArg "a command name" "$2" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local svcAccountName="$1"
     local command="$2"

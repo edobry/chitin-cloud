@@ -71,7 +71,7 @@ function k8sCheckContextExists() {
 }
 
 function k8sListNamespaces() {
-    gcloudCheckAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local contextVar=${1:+"--context="}${1}
     kubectl ${contextVar} get namespaces --output name | sed 's/namespace\///'

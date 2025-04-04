@@ -6,7 +6,7 @@ function pdGetToken() {
 }
 
 function pdGetSlackConnections() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     curl -s --request GET \
         --url https://app.pagerduty.com/integration-slack/workspaces/$CA_SLACK_WORKSPACE_ID/connections \

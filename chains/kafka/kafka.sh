@@ -18,20 +18,3 @@ function kafkaReadTopic() {
 
     kafkacatd $1 -C -t $2 -o -$3 -qe
 }
-
-# resets an MSK cluster's topics by destroying and recreating using terraform
-# args: TF repo, TF environment, cluster name
-function kafkaResetTopics() {
-    checkAuthAndFail || return 1
-
-    requireArg "a TF repo" "$1" || return 1
-    requireArg "a TF environment" "$2" || return 1
-    requireArg "an MSK cluster name" "$3" || return 1
-
-    local topicsModule="$3-topics"
-
-    echo "Resetting topics in '$topicsModule'..."
-
-    runTF $1 $2 $topicsModule destroy -auto-approve
-    runTF $1 $2 $topicsModule apply -auto-approve
-}

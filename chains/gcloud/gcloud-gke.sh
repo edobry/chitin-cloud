@@ -57,7 +57,7 @@ function gcloudGkeClusterInitFromEntry() {
 }
 
 function gcloudGkeRegisterClusters() {
-    gcloudCheckAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local defaultRegion
     if [[ "$1" == "defaultRegion" ]]; then

@@ -1,0 +1,15 @@
+platforms:
+  gcp:
+    check: gcloudCheckAuth
+    auth: gcloudAuth
+    revoke: gcloudRevoke
+    id: gcloudId
+    account: gcloudAccount
+  aws:
+    check: awsCheckAuth
+    auth: awsAuth
+    revoke: awsRevoke
+    id: awsId
+    account: awsAccount
+  local:
+    check: false

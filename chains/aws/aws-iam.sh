@@ -97,7 +97,7 @@ function awsIamShowPolicy() {
 
 function awsIamCreateProgrammaticCreds() {
     requireArg "an IAM role id" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     
     local roleArn
     local roleName

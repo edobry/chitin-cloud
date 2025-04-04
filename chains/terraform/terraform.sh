@@ -1,7 +1,7 @@
 # generates a terraform plan and shows destructive actions. can specify a module or call from inside one.
 # args: terraform environment (optional), module (optional)
 function tfShowDestroys() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     requireArg "a TF repo" $1 || return 1
     requireArg "a TF environment" $2 || return 1
@@ -43,7 +43,7 @@ function tfShowDestroys() {
 # locks a specific TG remote state
 # operates on the module in the working dir
 function tgLock() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     
     echo 'Locking state...'
     local workingDir=$(tgGetWorkingDir)
@@ -56,7 +56,7 @@ function tgLock() {
 # unlocks a specific TG remote state
 # operates on the module in the working dir
 function tgUnlock() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
     
     local lockId=$(tgGetLockId)
     if [[ -z "$lockId" ]]; then

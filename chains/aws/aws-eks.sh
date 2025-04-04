@@ -24,7 +24,7 @@ function awsEksUpgradeComponent() {
     requireArg "a resource identifier" "$2" || return 1
     requireArg "a namespace" "$3" || return 1
     requireArg "the new version" "$4" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local resourceType="$1"
     local resourceId="$2"
@@ -53,7 +53,7 @@ function awsEksUpgradeComponent() {
 function awsEksUpgradeVpcCniPlugin() {
 
     requireArg "the new version" "$1" || return 1 # format 1.10 or 1.11 will update to the latest of this version
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local newVersion="$1"
 
@@ -70,7 +70,7 @@ function awsEksUpgrade() {
     requireArg "the new CoreDNS version" "$3" || return 1
     requireArg "the new VPC CNI Plugin version" "$3" || return 1
     requireArg "the region" "$4" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local newClusterVersion="$1"
     local newKubeProxyVersion="$2"
@@ -87,13 +87,13 @@ function awsEksUpgrade() {
 
 function awsEksListNodegroups() {
     requireArg "a cluster name" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws eks list-nodegroups --cluster-name "$1" | jq -r '.nodegroups[]'
 }
 
 function awsEksListClusters() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws eks list-clusters | jq -r '.clusters[]'
 }
@@ -101,7 +101,7 @@ function awsEksListClusters() {
 function awsEksRegisterCluster() {
     requireArg "a cluster name" "$1" || return 1
     requireArg "a cluster alias" "$2" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local dryRun=$([[ "$3" == 'dryrun' ]] && echo '--dry-run' || echo '')
 
@@ -109,7 +109,7 @@ function awsEksRegisterCluster() {
 }
 
 function awsEksRegisterClusters() {
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local iter
 
@@ -146,7 +146,7 @@ function awsEksGetKnownClusters() {
 
 function awsEksUpdateNodegroups() {
     requireArg "a cluster name" "$1" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local clusterName="$1"
     local nodeGroups=$(awsEksListNodegroups $clusterName)
@@ -173,7 +173,7 @@ function awsEksUpdateNodegroups() {
 function awsEksUpdateNodegroup() {
     requireArg "a cluster name" "$1" || return 1
     requireArg "a node group name" "$2" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     local response
     response=$(aws eks update-nodegroup-version --cluster-name $1 --nodegroup-name $2 2>/dev/null)
@@ -188,7 +188,7 @@ function awsEksUpdateNodegroup() {
 function awsEksWaitForNodeGroupActive() {
     requireArg "a cluster name" "$1" || return 1
     requireArg "a node group name" "$2" || return 1
-    checkAuthAndFail || return 1
+    chiCloudPlatformCheckAuthAndFail || return 1
 
     aws eks wait nodegroup-active --cluster-name $1 --nodegroup-name $2
 }
